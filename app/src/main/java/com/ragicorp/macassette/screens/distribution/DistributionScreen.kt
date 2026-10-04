@@ -1,4 +1,4 @@
-package com.ragicorp.macassette.distribution
+package com.ragicorp.macassette.screens.distribution
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

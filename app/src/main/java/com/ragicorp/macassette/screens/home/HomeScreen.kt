@@ -1,4 +1,4 @@
-package com.ragicorp.macassette.home
+package com.ragicorp.macassette.screens.home
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +15,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.ragicorp.macassette.R
-import com.ragicorp.macassette.budget.BudgetScreen
-import com.ragicorp.macassette.distribution.DistributionScreen
-import com.ragicorp.macassette.operations.OperationsScreen
+import com.ragicorp.macassette.screens.budget.BudgetScreen
+import com.ragicorp.macassette.screens.distribution.DistributionScreen
+import com.ragicorp.macassette.screens.operations.OperationsScreen
 import dev.vicart.compose.material.symbols.MaterialSymbol
 
 enum class HomeSubScreens(
