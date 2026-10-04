@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Ma cassette</string>
+    <string name="home_operationsTitle">Opérations</string>
+    <string name="home_budgetTitle">Enveloppes</string>
+    <string name="home_distributionTitle">Répartition</string>
 </resources>

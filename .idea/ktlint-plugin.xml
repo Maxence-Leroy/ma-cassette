@@ -3,6 +3,7 @@
   <component name="com.nbadal.ktlint.KtlintProjectSettings">
     <ktlintMode>DISTRACT_FREE</ktlintMode>
     <ktlintRulesetVersion>DEFAULT</ktlintRulesetVersion>
+    <baselinePath>.editorconfig</baselinePath>
     <externalJarPaths>
       <list>
         <option value="$USER_HOME$/Downloads/ktlint-compose-0.6.7-all.jar" />
