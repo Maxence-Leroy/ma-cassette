@@ -1,6 +1,18 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+fun getProps(path: String): Properties {
+    val props = Properties()
+    val propsFile = File(path)
+    if (propsFile.exists()) {
+        props.load(FileInputStream(propsFile))
+    }
+    return props
 }
 
 android {
@@ -19,9 +31,20 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("release") {
+            val props = getProps("$rootDir/config/signing.properties")
+            keyAlias = props["keyAlias"] as String
+            keyPassword = props["keyPassword"] as String
+            storeFile = file(props["storeFile"] as String)
+            storePassword = props["storePassword"] as String
+        }
+    }
+
     buildTypes {
         release {
             optimization {
+                signingConfig = signingConfigs["release"]
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
             }
