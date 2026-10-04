@@ -66,6 +66,8 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 - Comments are sparse: short `//` notes for non-obvious platform workarounds or a source link, no
   KDoc blocks. Don't add doc comments unless explaining a genuine non-obvious constraint.
 - Encapsulation idiom: `private val _x` backing field + public `val x` read-only exposure.
+- **Before considering any task done, run `./gradlew ktlintCheck`** and fix any violations
+  (`./gradlew ktlintFormat` can auto-fix most). A task isn't finished until this passes clean.
 
 ## Git conventions
 
