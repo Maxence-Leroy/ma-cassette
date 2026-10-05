@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Database(
-    entities = [Operation::class, Category::class, OperationCategoryCrossRef::class],
+    entities = [OperationEntity::class, Category::class],
     version = 1,
 )
 abstract class OperationDatabase : RoomDatabase() {
