@@ -30,6 +30,22 @@ something is missing (tests, lint), that's noted explicitly rather than invented
   a `<Feature>Screen.kt` + `<Feature>ViewModel.kt` pair.
 - Cross-cutting code: `ui/theme/`, `ui/views/` (shared composables), `utils/`.
 
+## Room / persistence
+
+- Room entities/DAOs/database live under a top-level package named after the aggregate (e.g.
+  `operation/` holds `Operation`, `Category`, `OperationCategoryCrossRef`, `OperationDao`,
+  `OperationDatabase`) — not nested under `screens/`.
+- `OperationDatabase` is a singleton via a `getInstance(context: Context)` in its companion
+  object (double-checked locking, `context.applicationContext`). Follow this pattern for any
+  future Room database rather than introducing DI.
+- Schema export is on (`room.schemaLocation` in `app/build.gradle.kts`); the generated JSON under
+  `app/schemas/` is committed.
+- **Never bump `@Database(version = ...)` as a side effect of adding/changing entities or columns
+  — only bump it when explicitly asked to.** While nothing has shipped yet, entity changes just
+  regenerate the same version's schema JSON in place. Once the app has shipped, an un-asked-for
+  version bump would silently break migrations for existing installs, so this stays a human call
+  either way.
+
 ## ViewModel conventions
 
 - No constructor args needed → default `viewModel()` factory .
