@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.room.runtime)
     implementation(libs.compose.material.symbols)
+    implementation(libs.threetenbp)
 
     ksp(libs.androidx.room.compiler)
 

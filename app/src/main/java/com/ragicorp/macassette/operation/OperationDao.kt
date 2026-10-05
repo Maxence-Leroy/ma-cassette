@@ -20,5 +20,16 @@ data class OperationWithCategory(
     @Relation(parentColumn = "categoryId", entityColumn = "id")
     val category: Category?,
 ) {
-    fun toOperation() = Operation(id = entity.id, category = category)
+    fun toOperation() =
+        Operation(
+            id = entity.id,
+            category = category,
+            date = entity.date,
+            amount = entity.amount,
+            label = entity.label,
+            notes = entity.notes,
+            recurrentPeriod = entity.recurrentPeriod,
+            isWaitingForAction = entity.isWaitingForAction,
+            state = entity.state,
+        )
 }
