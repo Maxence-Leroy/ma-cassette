@@ -4,6 +4,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.ragicorp.macassette.screens.home.Home
 import com.ragicorp.macassette.screens.home.HomeScreen
 import com.ragicorp.macassette.ui.theme.MaCassetteTheme
 
@@ -13,7 +17,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             MaCassetteTheme {
-                HomeScreen()
+                val navController = rememberNavController()
+                NavHost(navController = navController, startDestination = Home) {
+                    composable<Home> { HomeScreen() }
+                }
             }
         }
     }

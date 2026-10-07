@@ -20,6 +20,10 @@ import com.ragicorp.macassette.screens.distribution.DistributionScreen
 import com.ragicorp.macassette.screens.home.views.HomeFabMenu
 import com.ragicorp.macassette.screens.operations.OperationsScreen
 import dev.vicart.compose.material.symbols.MaterialSymbol
+import kotlinx.serialization.Serializable
+
+@Serializable
+data object Home
 
 enum class HomeSubScreens(
     @StringRes val text: Int,
