@@ -9,12 +9,12 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 ## Build
 
 - Single module: `:app`. `namespace` / `applicationId` = `com.ragicorp.macassette`.
-- `compileSdk = release(37) { minorApiLevel = 1 }` (API 37.1), `minSdk = 26`, `targetSdk = 37`.
-  Java/Kotlin target 11. Kotlin `2.4.10`, AGP `9.3.1`, Gradle `9.7.0`.
+- `compileSdk = release(37)`, `minSdk = 24`, `targetSdk = 37`.
+  Java target 11. Kotlin `2.4.20`, AGP `9.4.1`, Gradle `9.8.0`.
 - AGP 9's built-in Kotlin support is used — there is no separate `org.jetbrains.kotlin.android`
   plugin applied (removed from both `build.gradle.kts` and `app/build.gradle.kts`);
-  `org.jetbrains.kotlin.plugin.compose` and `org.jetbrains.kotlin.plugin.serialization` are still
-  applied explicitly since built-in Kotlin doesn't cover those.
+  `org.jetbrains.kotlin.plugin.compose` is still applied explicitly since built-in Kotlin doesn't
+  cover it. Other plugins: KSP (for Room) and `org.jlleitschuh.gradle.ktlint`.
 - No product flavors. `release` build type uses a signing config loaded from
   `config/signing.properties` (gitignored) pointing at `app/wtc_key.jks`.
 - **All dependencies and plugins go through the version catalog** (`gradle/libs.versions.toml`) —
@@ -25,7 +25,6 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 
 - Plain **MVVM**: `androidx.lifecycle.ViewModel` + Compose. No DI framework (no Hilt/Koin) —
   ViewModels are constructed manually.
-- No repository layer. ViewModels call the `firestore/*Manager` singleton objects directly.
 - Package-per-feature under `app/src/main/java/com/ragicorp/macassette/`. Each feature package holds
   a `<Feature>Screen.kt` + `<Feature>ViewModel.kt` pair.
 - Cross-cutting code: `ui/theme/`, `ui/views/` (shared composables), `utils/`.
