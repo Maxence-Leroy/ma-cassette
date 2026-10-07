@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.budget.BudgetScreen
 import com.ragicorp.macassette.screens.distribution.DistributionScreen
+import com.ragicorp.macassette.screens.home.views.HomeFabMenu
 import com.ragicorp.macassette.screens.operations.OperationsScreen
 import dev.vicart.compose.material.symbols.MaterialSymbol
 
@@ -47,6 +48,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 }
             }
         },
+        floatingActionButton = { HomeFabMenu() },
     ) { paddingValues ->
         val contentModifier = Modifier.padding(paddingValues)
         when (selectedScreen) {
