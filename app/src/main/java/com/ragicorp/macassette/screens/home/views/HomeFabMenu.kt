@@ -24,11 +24,14 @@ enum class HomeFabMenuItems(
     val icon: String,
 ) {
     AddOperation(R.string.home_addOperation, "edit_note"),
-    ImportOperations(R.string.home_importOperations, "upload_file"),
+    ImportOperations(R.string.importOperations_title, "upload_file"),
 }
 
 @Composable
-fun HomeFabMenu(modifier: Modifier = Modifier) {
+fun HomeFabMenu(
+    onItemClick: (HomeFabMenuItems) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     BackHandler(expanded) { expanded = false }
@@ -50,7 +53,10 @@ fun HomeFabMenu(modifier: Modifier = Modifier) {
     ) {
         HomeFabMenuItems.entries.forEach {
             FloatingActionButtonMenuItem(
-                onClick = { expanded = false },
+                onClick = {
+                    expanded = false
+                    onItemClick(it)
+                },
                 icon = { MaterialSymbol.Filled(it.icon) },
                 text = { Text(stringResource(it.text)) },
             )

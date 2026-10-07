@@ -9,6 +9,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ragicorp.macassette.screens.home.Home
 import com.ragicorp.macassette.screens.home.HomeScreen
+import com.ragicorp.macassette.screens.importoperations.ImportOperations
+import com.ragicorp.macassette.screens.importoperations.ImportOperationsScreen
 import com.ragicorp.macassette.ui.theme.MaCassetteTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,7 +21,12 @@ class MainActivity : ComponentActivity() {
             MaCassetteTheme {
                 val navController = rememberNavController()
                 NavHost(navController = navController, startDestination = Home) {
-                    composable<Home> { HomeScreen() }
+                    composable<Home> {
+                        HomeScreen(onImportOperationsClick = { navController.navigate(ImportOperations) })
+                    }
+                    composable<ImportOperations> {
+                        ImportOperationsScreen(onBack = { navController.popBackStack() })
+                    }
                 }
             }
         }

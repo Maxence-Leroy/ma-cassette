@@ -18,6 +18,7 @@ import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.budget.BudgetScreen
 import com.ragicorp.macassette.screens.distribution.DistributionScreen
 import com.ragicorp.macassette.screens.home.views.HomeFabMenu
+import com.ragicorp.macassette.screens.home.views.HomeFabMenuItems
 import com.ragicorp.macassette.screens.operations.OperationsScreen
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
@@ -35,7 +36,10 @@ enum class HomeSubScreens(
 }
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun HomeScreen(
+    onImportOperationsClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var selectedScreen by remember { mutableStateOf(HomeSubScreens.Operations) }
 
     Scaffold(
@@ -52,7 +56,16 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 }
             }
         },
-        floatingActionButton = { HomeFabMenu() },
+        floatingActionButton = {
+            HomeFabMenu(
+                onItemClick = {
+                    when (it) {
+                        HomeFabMenuItems.AddOperation -> Unit
+                        HomeFabMenuItems.ImportOperations -> onImportOperationsClick()
+                    }
+                },
+            )
+        },
     ) { paddingValues ->
         val contentModifier = Modifier.padding(paddingValues)
         when (selectedScreen) {
