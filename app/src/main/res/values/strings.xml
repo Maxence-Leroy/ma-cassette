@@ -4,5 +4,12 @@
     <string name="home_budgetTitle">Enveloppes</string>
     <string name="home_distributionTitle">Répartition</string>
     <string name="home_addOperation">Ajouter une opération</string>
+    <string name="home_operationDate">Date</string>
+    <string name="home_operationCategory">Catégorie</string>
+    <string name="home_operationName">Nom</string>
+    <string name="home_operationExpense">Dépense</string>
+    <string name="home_operationEarning">Revenu</string>
+    <string name="home_operationAmount">Montant</string>
+    <string name="home_operationNotes">Notes</string>
     <string name="importOperations_title">Importer un relevé d’opérations</string>
 </resources>

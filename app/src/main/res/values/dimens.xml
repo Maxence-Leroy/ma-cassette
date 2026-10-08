@@ -1,3 +1,4 @@
 <resources>
+    <dimen name="single_space">8dp</dimen>
     <dimen name="double_space">16dp</dimen>
 </resources>
