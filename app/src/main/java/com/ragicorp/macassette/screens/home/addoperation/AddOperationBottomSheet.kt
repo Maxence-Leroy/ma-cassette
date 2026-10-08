@@ -1,4 +1,4 @@
-package com.ragicorp.macassette.screens.home.views
+package com.ragicorp.macassette.screens.home.addoperation
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -32,23 +32,20 @@ import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
-import com.ragicorp.macassette.utils.Preferences
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
@@ -56,23 +53,20 @@ import org.threeten.bp.format.FormatStyle
 
 private const val MILLIS_PER_DAY = 86_400_000L
 
-// Digits with at most one decimal separator (',' for French, '.' for English) and 2 decimals
-private val AMOUNT_REGEX = Regex("""^\d*([.,]\d{0,2})?$""")
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddOperationBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: AddOperationViewModel = viewModel(),
 ) {
-    var epochDay by rememberSaveable { mutableLongStateOf(LocalDate.now().toEpochDay()) }
-    var name by rememberSaveable { mutableStateOf("") }
-    var isEarning by rememberSaveable { mutableStateOf(false) }
-    var amount by rememberSaveable { mutableStateOf("") }
-    var notes by rememberSaveable { mutableStateOf("") }
+    val date by viewModel.date
+    val category by viewModel.category
+    val name by viewModel.name
+    val amount by viewModel.amount
+    val isEarning by viewModel.isEarning
+    val notes by viewModel.notes
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
-    val currency = remember { Preferences.getCurrency(context) }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -100,15 +94,19 @@ fun AddOperationBottomSheet(
                 style = MaterialTheme.typography.titleLarge,
             )
             DateField(
-                date = LocalDate.ofEpochDay(epochDay),
+                date = date,
                 onClick = { showDatePicker = true },
             )
-            CategoryDropdown(categories = emptyList())
+            CategoryDropdown(
+                categories = viewModel.categories,
+                selectedCategory = category,
+                onCategorySelect = viewModel::setCategory,
+            )
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = viewModel::setName,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.home_operationName)) },
+                label = { Text(stringResource(R.string.addOperation_name)) },
                 singleLine = true,
             )
             Row(
@@ -117,23 +115,23 @@ fun AddOperationBottomSheet(
             ) {
                 OutlinedTextField(
                     value = amount,
-                    onValueChange = { if (AMOUNT_REGEX.matches(it)) amount = it },
+                    onValueChange = viewModel::setAmount,
                     modifier = Modifier.weight(1f),
-                    label = { Text(stringResource(R.string.home_operationAmount)) },
-                    suffix = { Text(currency) },
+                    label = { Text(stringResource(R.string.addOperation_amount)) },
+                    suffix = { Text(viewModel.currency) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 )
                 EarningSelector(
                     isEarning = isEarning,
-                    onIsEarningChange = { isEarning = it },
+                    onIsEarningChange = viewModel::setIsEarning,
                 )
             }
             OutlinedTextField(
                 value = notes,
-                onValueChange = { notes = it },
+                onValueChange = viewModel::setNotes,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.home_operationNotes)) },
+                label = { Text(stringResource(R.string.addOperation_notes)) },
                 minLines = 3,
             )
         }
@@ -141,13 +139,13 @@ fun AddOperationBottomSheet(
 
     if (showDatePicker) {
         // DatePicker works in UTC milliseconds, so epoch days map to it without any time zone
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = epochDay * MILLIS_PER_DAY)
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = date.toEpochDay() * MILLIS_PER_DAY)
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        datePickerState.selectedDateMillis?.let { epochDay = it / MILLIS_PER_DAY }
+                        datePickerState.selectedDateMillis?.let { viewModel.setDate(LocalDate.ofEpochDay(it / MILLIS_PER_DAY)) }
                         showDatePicker = false
                     },
                 ) {
@@ -174,7 +172,7 @@ private fun EarningSelector(
         modifier = Modifier.selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.single_space)),
     ) {
-        listOf(false to R.string.home_operationExpense, true to R.string.home_operationEarning).forEach { (value, text) ->
+        listOf(false to R.string.addOperation_expense, true to R.string.addOperation_earning).forEach { (value, text) ->
             Row(
                 modifier =
                     Modifier.selectable(
@@ -211,7 +209,7 @@ private fun DateField(
                 }
             },
         readOnly = true,
-        label = { Text(stringResource(R.string.home_operationDate)) },
+        label = { Text(stringResource(R.string.addOperation_date)) },
         trailingIcon = { MaterialSymbol.Filled("calendar_month") },
         singleLine = true,
     )
@@ -219,23 +217,26 @@ private fun DateField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CategoryDropdown(categories: List<Category>) {
+private fun CategoryDropdown(
+    categories: List<Category>,
+    selectedCategory: Category?,
+    onCategorySelect: (Category) -> Unit,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    var selectedCategory by rememberSaveable { mutableStateOf<String?>(null) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = it },
     ) {
         OutlinedTextField(
-            value = selectedCategory.orEmpty(),
+            value = selectedCategory?.name.orEmpty(),
             onValueChange = {},
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
             readOnly = true,
-            label = { Text(stringResource(R.string.home_operationCategory)) },
+            label = { Text(stringResource(R.string.addOperation_category)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             singleLine = true,
         )
@@ -247,7 +248,7 @@ private fun CategoryDropdown(categories: List<Category>) {
                 DropdownMenuItem(
                     text = { Text(it.name) },
                     onClick = {
-                        selectedCategory = it.name
+                        onCategorySelect(it)
                         expanded = false
                     },
                 )

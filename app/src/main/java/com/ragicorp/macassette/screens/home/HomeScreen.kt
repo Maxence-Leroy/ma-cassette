@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,10 +19,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.budget.BudgetScreen
 import com.ragicorp.macassette.screens.distribution.DistributionScreen
-import com.ragicorp.macassette.screens.home.views.AddOperationBottomSheet
+import com.ragicorp.macassette.screens.home.addoperation.AddOperationBottomSheet
 import com.ragicorp.macassette.screens.home.views.HomeFabMenu
 import com.ragicorp.macassette.screens.home.views.HomeFabMenuItems
 import com.ragicorp.macassette.screens.operations.OperationsScreen
@@ -94,6 +97,9 @@ fun HomeScreen(
     }
 
     if (showAddOperationSheet) {
-        AddOperationBottomSheet(onDismissRequest = { showAddOperationSheet = false })
+        // Scope the ViewModel to the sheet so the form starts empty every time it opens
+        CompositionLocalProvider(LocalViewModelStoreOwner provides rememberViewModelStoreOwner()) {
+            AddOperationBottomSheet(onDismissRequest = { showAddOperationSheet = false })
+        }
     }
 }
