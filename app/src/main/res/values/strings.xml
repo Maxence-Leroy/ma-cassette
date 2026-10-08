@@ -13,4 +13,5 @@
     <string name="addOperation_notes">Notes</string>
     <string name="importOperations_title">Importer un relevé d’opérations</string>
     <string name="settings_title">Paramètres</string>
+    <string name="settings_currency">Symbole monétaire</string>
 </resources>
