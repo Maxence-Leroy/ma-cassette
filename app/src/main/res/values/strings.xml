@@ -12,4 +12,5 @@
     <string name="home_operationAmount">Montant</string>
     <string name="home_operationNotes">Notes</string>
     <string name="importOperations_title">Importer un relevé d’opérations</string>
+    <string name="settings_title">Paramètres</string>
 </resources>
