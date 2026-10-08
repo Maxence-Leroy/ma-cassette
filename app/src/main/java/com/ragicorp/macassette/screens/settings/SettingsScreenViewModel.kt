@@ -13,7 +13,7 @@ class SettingsScreenViewModel(
     val currency: State<String> = _currency
 
     fun setCurrency(currency: String) {
-        _currency.value = currency
         Preferences.setCurrency(getApplication(), currency)
+        _currency.value = Preferences.getCurrency(getApplication())
     }
 }

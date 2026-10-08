@@ -35,9 +35,14 @@ fun CurrencySetting(
             Text(stringResource(R.string.settings_currency))
         }
         AnimatedVisibility(visible = expanded) {
+            // Keep the raw input so the field can be cleared while the saved symbol falls back to the default
+            var input by rememberSaveable { mutableStateOf(currency) }
             OutlinedTextField(
-                value = currency,
-                onValueChange = onCurrencyChange,
+                value = input,
+                onValueChange = {
+                    input = it
+                    onCurrencyChange(it)
+                },
                 modifier =
                     Modifier
                         .fillMaxWidth()

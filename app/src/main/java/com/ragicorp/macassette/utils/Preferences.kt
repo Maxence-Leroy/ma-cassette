@@ -17,6 +17,8 @@ object Preferences {
         context: Context,
         currency: String,
     ) {
-        get(context).edit { putString(CURRENCY_KEY, currency) }
+        get(context).edit {
+            if (currency.isBlank()) remove(CURRENCY_KEY) else putString(CURRENCY_KEY, currency)
+        }
     }
 }
