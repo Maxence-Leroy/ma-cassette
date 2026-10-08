@@ -11,6 +11,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
@@ -23,6 +24,7 @@ data object Settings
 fun SettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: SettingsScreenViewModel = viewModel(),
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
