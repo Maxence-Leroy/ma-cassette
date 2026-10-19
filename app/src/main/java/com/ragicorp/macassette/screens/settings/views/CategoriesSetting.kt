@@ -46,7 +46,12 @@ fun CategoriesSetting(
                 verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.single_space)),
             ) {
                 categories.forEach {
-                    CategoryCard(category = it, currency = currency)
+                    CategoryCard(
+                        category = it,
+                        currency = currency,
+                        onEditClick = {},
+                        onDeleteClick = {},
+                    )
                 }
                 TextButton(
                     onClick = { showAddCategorySheet = true },
