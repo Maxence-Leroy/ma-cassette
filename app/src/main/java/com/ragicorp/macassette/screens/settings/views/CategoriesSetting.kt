@@ -16,6 +16,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
@@ -36,6 +37,7 @@ fun CategoriesSetting(
     Column(modifier = modifier) {
         ListItem(
             onClick = { expanded = !expanded },
+            supportingContent = if (expanded) null else ({ Text(categoriesSummary(categories)) }),
             trailingContent = { MaterialSymbol.Filled(if (expanded) "keyboard_arrow_up" else "keyboard_arrow_down") },
         ) {
             Text(stringResource(R.string.settings_categories))
@@ -73,4 +75,15 @@ fun CategoriesSetting(
             AddCategoryBottomSheet(onDismissRequest = { showAddCategorySheet = false })
         }
     }
+}
+
+@Composable
+private fun categoriesSummary(categories: List<Category>): String {
+    val earningCount = categories.count { it.isEarning }
+    val expenseCount = categories.size - earningCount
+    return stringResource(
+        R.string.settings_categoriesSummary,
+        pluralStringResource(R.plurals.settings_expenseCount, expenseCount, expenseCount),
+        pluralStringResource(R.plurals.settings_earningCount, earningCount, earningCount),
+    )
 }

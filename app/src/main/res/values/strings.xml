@@ -19,6 +19,17 @@
     <string name="settings_categoryExpense">Dépense</string>
     <string name="settings_categoryEarning">Revenu</string>
     <string name="settings_categoryBudget">Dépense · enveloppe de %1$s\u202F%2$s par mois</string>
+    <string name="settings_categoriesSummary">%1$s, %2$s</string>
+    <plurals name="settings_expenseCount">
+        <item quantity="one">%d dépense</item>
+        <item quantity="many">%d dépenses</item>
+        <item quantity="other">%d dépenses</item>
+    </plurals>
+    <plurals name="settings_earningCount">
+        <item quantity="one">%d revenu</item>
+        <item quantity="many">%d revenus</item>
+        <item quantity="other">%d revenus</item>
+    </plurals>
     <string name="addCategory_name">Nom</string>
     <string name="addCategory_color">Couleur</string>
     <string name="addCategory_budget">Enveloppe pour un mois (optionnel)</string>
