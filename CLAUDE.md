@@ -48,6 +48,9 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 - `OperationDatabase` is a singleton via a `getInstance(context: Context)` in its companion
   object (double-checked locking, `context.applicationContext`). Follow this pattern for any
   future Room database rather than introducing DI.
+- ViewModels never touch DAOs directly — they go through a repository in the same aggregate
+  package (e.g. `OperationRepository` wrapping `OperationDao`). Repositories are plain classes
+  constructed with a `Context` (not singletons) — only the database itself is a singleton.
 - Schema export is on (`room.schemaLocation` in `app/build.gradle.kts`); the generated JSON under
   `app/schemas/` is committed.
 - **Never bump `@Database(version = ...)` as a side effect of adding/changing entities or columns

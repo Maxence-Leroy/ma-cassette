@@ -2,6 +2,7 @@ package com.ragicorp.macassette.operation
 
 import androidx.room.Dao
 import androidx.room.Embedded
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
@@ -13,6 +14,9 @@ interface OperationDao {
     @Transaction
     @Query("SELECT * FROM OperationEntity")
     suspend fun getOperationsWithCategory(): List<OperationWithCategory>
+
+    @Insert
+    suspend fun insertCategory(category: Category)
 }
 
 data class OperationWithCategory(

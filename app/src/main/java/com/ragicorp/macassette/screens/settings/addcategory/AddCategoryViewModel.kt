@@ -2,24 +2,28 @@ package com.ragicorp.macassette.screens.settings.addcategory
 
 import android.app.Application
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.AndroidViewModel
-import com.ragicorp.macassette.ui.theme.CategoryColors
+import androidx.lifecycle.viewModelScope
+import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
+import kotlinx.coroutines.launch
 
 class AddCategoryViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
+    private val operationRepository = OperationRepository(application)
+
     val currency = Preferences.getCurrency(application)
 
     private val _name = mutableStateOf("")
     val name: State<String> = _name
 
-    private val _color = mutableIntStateOf(CategoryColors.first().toArgb())
-    val color: State<Int> = _color
+    private val _color = mutableStateOf<Int?>(null)
+    val color: State<Int?> = _color
 
     private val _budget = mutableStateOf("")
     val budget: State<String> = _budget
@@ -27,12 +31,14 @@ class AddCategoryViewModel(
     private val _isEarning = mutableStateOf(false)
     val isEarning: State<Boolean> = _isEarning
 
+    val canSave: State<Boolean> = derivedStateOf { _name.value.isNotBlank() && _color.value != null }
+
     fun setName(name: String) {
         _name.value = name
     }
 
     fun setColor(color: Int) {
-        _color.intValue = color
+        _color.value = color
     }
 
     fun setBudget(budget: String) {
@@ -41,5 +47,22 @@ class AddCategoryViewModel(
 
     fun setIsEarning(isEarning: Boolean) {
         _isEarning.value = isEarning
+    }
+
+    fun save(onSaved: () -> Unit) {
+        val color = _color.value ?: return
+        if (_name.value.isBlank()) return
+        val category =
+            Category(
+                name = _name.value.trim(),
+                color = color,
+                // The budget field is hidden for earnings, so ignore any value left over from expense mode
+                budget = if (_isEarning.value) null else _budget.value.replace(',', '.').toDoubleOrNull(),
+                isEarning = _isEarning.value,
+            )
+        viewModelScope.launch {
+            operationRepository.insertCategory(category)
+            onSaved()
+        }
     }
 }

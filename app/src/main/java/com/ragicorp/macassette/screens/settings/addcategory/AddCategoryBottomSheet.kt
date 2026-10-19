@@ -16,6 +16,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -28,6 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -39,6 +42,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.ui.theme.CategoryColors
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,15 +55,18 @@ fun AddCategoryBottomSheet(
     val color by viewModel.color
     val budget by viewModel.budget
     val isEarning by viewModel.isEarning
+    val canSave by viewModel.canSave
+    val sheetState =
+        rememberBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+        )
+    val scope = rememberCoroutineScope()
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        sheetState =
-            rememberBottomSheetState(
-                initialValue = SheetValue.Hidden,
-                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-            ),
+        sheetState = sheetState,
     ) {
         Column(
             modifier =
@@ -107,6 +114,17 @@ fun AddCategoryBottomSheet(
                 selectedColor = color,
                 onColorSelect = viewModel::setColor,
             )
+            Button(
+                onClick = {
+                    viewModel.save {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
+                    }
+                },
+                modifier = Modifier.align(Alignment.End),
+                enabled = canSave,
+            ) {
+                Text(stringResource(R.string.addCategory_save))
+            }
         }
     }
 }
@@ -132,7 +150,7 @@ private fun EarningSelector(
 
 @Composable
 private fun ColorSelector(
-    selectedColor: Int,
+    selectedColor: Int?,
     onColorSelect: (Int) -> Unit,
 ) {
     FlowRow(
