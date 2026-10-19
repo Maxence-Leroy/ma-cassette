@@ -1,4 +1,4 @@
-package com.ragicorp.macassette.operation
+package com.ragicorp.macassette.operation.db
 
 import android.content.Context
 import androidx.room.Database
@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [OperationEntity::class, Category::class],
+    entities = [OperationEntity::class, CategoryEntity::class],
     version = 1,
 )
 @TypeConverters(Converters::class)

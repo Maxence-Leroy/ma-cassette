@@ -1,4 +1,4 @@
-package com.ragicorp.macassette.operation
+package com.ragicorp.macassette.operation.db
 
 import androidx.room.TypeConverter
 import org.threeten.bp.LocalDate

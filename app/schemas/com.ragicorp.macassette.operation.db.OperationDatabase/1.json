@@ -2,10 +2,10 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "ed3150c51e990baba08cce1ada085ba2",
+    "identityHash": "bba9c80a8f8e0c61bfb04d02bfb9f408",
     "entities": [
       {
-        "tableName": "OperationEntity",
+        "tableName": "Operation",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `categoryId` INTEGER, `date` INTEGER NOT NULL, `amount` REAL NOT NULL, `label` TEXT NOT NULL, `notes` TEXT NOT NULL, `recurrentPeriod` TEXT, `isWaitingForAction` INTEGER NOT NULL, `state` TEXT NOT NULL, FOREIGN KEY(`categoryId`) REFERENCES `Category`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
         "fields": [
           {
@@ -69,13 +69,13 @@
         },
         "indices": [
           {
-            "name": "index_OperationEntity_categoryId",
+            "name": "index_Operation_categoryId",
             "unique": false,
             "columnNames": [
               "categoryId"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_OperationEntity_categoryId` ON `${TABLE_NAME}` (`categoryId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Operation_categoryId` ON `${TABLE_NAME}` (`categoryId`)"
           }
         ],
         "foreignKeys": [
@@ -136,7 +136,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed3150c51e990baba08cce1ada085ba2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bba9c80a8f8e0c61bfb04d02bfb9f408')"
     ]
   }
 }

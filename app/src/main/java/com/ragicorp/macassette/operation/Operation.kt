@@ -11,7 +11,7 @@ data class Operation(
     val label: String,
     val notes: String,
     val recurrentPeriod: Period? = null,
-    val isWaitingForAction: Boolean = false,
+    val isWaitingForAction: Boolean,
     val state: OperationState,
 )
 

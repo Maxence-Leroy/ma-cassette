@@ -1,22 +1,24 @@
-package com.ragicorp.macassette.operation
+package com.ragicorp.macassette.operation.db
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.ragicorp.macassette.operation.OperationState
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Period
 
 @Entity(
     foreignKeys = [
         ForeignKey(
-            entity = Category::class,
+            entity = CategoryEntity::class,
             parentColumns = ["id"],
             childColumns = ["categoryId"],
             onDelete = ForeignKey.SET_NULL,
         ),
     ],
     indices = [Index("categoryId")],
+    tableName = "Operation",
 )
 data class OperationEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -26,6 +28,6 @@ data class OperationEntity(
     val label: String,
     val notes: String,
     val recurrentPeriod: Period? = null,
-    val isWaitingForAction: Boolean = false,
+    val isWaitingForAction: Boolean,
     val state: OperationState,
 )

@@ -42,9 +42,14 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 
 ## Room / persistence
 
-- Room entities/DAOs/database live under a top-level package named after the aggregate (e.g.
-  `operation/` holds `Operation`, `Category`, `OperationCategoryCrossRef`, `OperationDao`,
-  `OperationDatabase`) — not nested under `screens/`.
+- Persistence lives under a top-level package named after the aggregate — not nested under
+  `screens/`. Its root holds only the domain models and the repository (e.g. `operation/` holds
+  `Operation`, `Category` and `OperationRepository`); everything Room-specific (entities, DAOs,
+  type converters, the database) goes in a `db/` sub-package (e.g. `operation/db/` holds
+  `CategoryEntity`, `OperationEntity`, `Converters`, `OperationDao`, `OperationDatabase`).
+- Each domain model has a matching `<Model>Entity` in `db/`, with mapping functions next to the
+  entity (e.g. `CategoryEntity.toCategory()` / `Category.toEntity()`). UI code and ViewModels only
+  see domain models; the repository maps to/from entities before calling the DAO.
 - `OperationDatabase` is a singleton via a `getInstance(context: Context)` in its companion
   object (double-checked locking, `context.applicationContext`). Follow this pattern for any
   future Room database rather than introducing DI.
