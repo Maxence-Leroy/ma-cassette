@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import com.ragicorp.macassette.utils.Preferences
 
-class SettingsScreenViewModel(
+class SettingsViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
     private val _currency = mutableStateOf(Preferences.getCurrency(application))

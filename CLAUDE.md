@@ -4,7 +4,7 @@ Android app to keep track of expenses. MVVM architecture, single `:app` Gradle m
 
 This document describes the standards **actually used** in this codebase today, so new code stays
 consistent. It does not prescribe tooling or practices that aren't already in place — where
-something is missing (tests, lint), that's noted explicitly rather than invented.
+something is missing (e.g. there are no tests), that's noted explicitly rather than invented.
 
 ## Build
 
@@ -32,8 +32,11 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 
 - Plain **MVVM**: `androidx.lifecycle.ViewModel` + Compose. No DI framework (no Hilt/Koin) —
   ViewModels are constructed manually.
-- Package-per-feature under `app/src/main/java/com/ragicorp/macassette/`. Each feature package holds
-  a `<Feature>Screen.kt` + `<Feature>ViewModel.kt` pair.
+- Package-per-feature under `app/src/main/java/com/ragicorp/macassette/screens/`. Each feature
+  package holds a `<Feature>Screen.kt`, plus its ViewModel when the screen has state.
+- A bottom sheet with its own form gets its own sub-package inside the feature that opens it, with a
+  `<Name>BottomSheet.kt` + `<Name>ViewModel.kt` pair (e.g. `screens/home/addoperation/`,
+  `screens/settings/addcategory/`).
 - Cross-cutting code: `ui/theme/`, `ui/views/` (shared composables), `utils/`.
 - Navigation uses **Navigation Compose with type-safe routes**: each destination is a
   `@Serializable` route (`data object` for no args, `data class` for args) declared next to its
@@ -63,15 +66,21 @@ something is missing (tests, lint), that's noted explicitly rather than invented
   regenerate the same version's schema JSON in place. Once the app has shipped, an un-asked-for
   version bump would silently break migrations for existing installs, so this stays a human call
   either way.
+- Renaming an entity class changes its default table name (and therefore the schema). When that
+  isn't intended, pin the old name with `@Entity(tableName = ...)`.
 
 ## ViewModel conventions
 
-- No constructor args needed → default `viewModel()` factory .
-- Needs constructor args (nav params, callbacks) → define a nested factory named
+- No constructor args needed → default `viewModel()` factory, wired as the Screen's / BottomSheet's
+  default `viewModel` param.
+- Needs `Application`/`Context` (e.g. `Preferences`, constructing a repository) → extend
+  `AndroidViewModel(application)`. This is what every existing ViewModel does.
+- Needs other constructor args (nav params, callbacks) → define a nested factory named
   `<Feature>ViewModelFactory : ViewModelProvider.NewInstanceFactory()` inside the ViewModel class
-  itself, wired as the Screen's default param:
-- Needs `Application`/`Context` (e.g. `CredentialManager`, clipboard) → extend
-  `AndroidViewModel(application)`.
+  itself, wired as the Screen's default param. (No ViewModel needs this yet.)
+- A bottom sheet's ViewModel is scoped to the sheet so its form starts empty each time it opens:
+  wrap the sheet in `CompositionLocalProvider(LocalViewModelStoreOwner provides
+  rememberViewModelStoreOwner())` where it's shown (see `HomeScreen` / `CategoriesSetting`).
 - There is **no aggregated `UiState` data class** — each piece of state is its own property. Follow
   this per-property style rather than introducing a combined state object.
 
@@ -82,6 +91,7 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 - Theming lives in `ui/theme/` (`Color.kt`, `Theme.kt`, `Type.kt`) — mostly stock Compose-template
   setup with `MaCassetteTheme` supporting dynamic color on API 31+.
 - **Dimensions always come from `dimensionResource(R.dimen.*)`** — never hardcode `.dp` literals.
+  Dimen names are snake_case (e.g. `single_space`, `double_space`, `color_swatch`).
 - **UI text always comes from `stringResource(R.string....)` in composables /
   `context.getString(...)` in ViewModels.** String resource keys follow `<feature>_<camelCaseName>`.
 - Reusable composables: app-wide ones in `ui/views/`; feature-local ones in a `<feature>/views/`
@@ -95,8 +105,11 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 
 ## Code style
 
-- No wildcard imports; imports grouped/sorted AndroidX → `com.google.*` → `com.ragicorp.*` →
-  `kotlinx`/`java`.
+- No wildcard imports; imports are in a single lexicographically sorted block (ktlint's default
+  layout: `java.*`, `javax.*` and `kotlin.*` go last). `./gradlew ktlintFormat` fixes the order.
+- **No default values on data class constructor params** (domain models and entities), except the
+  `id` (`= 0` for auto-generated keys) and optional fields (nullable, `= null`). Required values —
+  booleans included — must be passed explicitly at every call site.
 - Comments are sparse: short `//` notes for non-obvious platform workarounds or a source link, no
   KDoc blocks. Don't add doc comments unless explaining a genuine non-obvious constraint.
 - Encapsulation idiom: `private val _x` backing field + public `val x` read-only exposure.
@@ -126,6 +139,16 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 ## Running
 
 Avoid running on an emulator, always prefer a real device (either from USB or adb Wi-Fi)
+
+**After a Room schema change without a `@Database(version = ...)` bump** (i.e. the schema JSON
+under `app/schemas/` changed but the version didn't), the database already on the device no longer
+matches and the app will crash when opening it. Clear the app data before testing:
+
+```
+adb shell pm clear com.ragicorp.macassette
+```
+
+This also wipes any test data and preferences on the device, so mention it to the user when you do it.
 
 When driving the app via `adb` to verify a change, find tap coordinates from the UI hierarchy rather
 than eyeballing raw screenshots:

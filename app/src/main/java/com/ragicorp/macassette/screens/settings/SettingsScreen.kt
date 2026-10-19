@@ -27,7 +27,7 @@ data object Settings
 fun SettingsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: SettingsScreenViewModel = viewModel(),
+    viewModel: SettingsViewModel = viewModel(),
 ) {
     val currency by viewModel.currency
 
