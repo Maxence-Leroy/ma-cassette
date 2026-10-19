@@ -14,4 +14,5 @@
     <string name="importOperations_title">Importer un relevé d’opérations</string>
     <string name="settings_title">Paramètres</string>
     <string name="settings_currency">Symbole monétaire</string>
+    <string name="settings_categories">Catégories</string>
 </resources>

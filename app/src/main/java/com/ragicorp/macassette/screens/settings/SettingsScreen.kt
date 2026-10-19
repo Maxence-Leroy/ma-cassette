@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.screens.settings.views.CategoriesSetting
 import com.ragicorp.macassette.screens.settings.views.CurrencySetting
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
@@ -48,6 +49,7 @@ fun SettingsScreen(
                 currency = currency,
                 onCurrencyChange = viewModel::setCurrency,
             )
+            CategoriesSetting()
         }
     }
 }
