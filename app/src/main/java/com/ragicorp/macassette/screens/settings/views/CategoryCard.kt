@@ -23,6 +23,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.CategoryType
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import java.text.NumberFormat
 
@@ -73,10 +74,15 @@ fun CategoryCard(
                 )
                 Text(
                     text =
-                        when {
-                            category.isEarning -> stringResource(R.string.settings_categoryEarning)
-                            budget != null -> stringResource(R.string.settings_categoryBudget, budget, currency)
-                            else -> stringResource(R.string.settings_categoryExpense)
+                        when (category.type) {
+                            CategoryType.Expense ->
+                                if (budget != null) {
+                                    stringResource(R.string.settings_categoryBudget, budget, currency)
+                                } else {
+                                    stringResource(R.string.settings_categoryExpense)
+                                }
+                            CategoryType.Earning -> stringResource(R.string.settings_categoryEarning)
+                            CategoryType.Internal -> stringResource(R.string.settings_categoryInternal)
                         },
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

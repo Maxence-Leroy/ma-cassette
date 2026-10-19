@@ -18,7 +18,7 @@ interface OperationDao {
     @Query("SELECT * FROM Operation")
     suspend fun getOperationsWithCategory(): List<OperationWithCategory>
 
-    @Query("SELECT * FROM Category ORDER BY isEarning, color, name COLLATE NOCASE")
+    @Query("SELECT * FROM Category ORDER BY CASE type WHEN 'Expense' THEN 0 WHEN 'Earning' THEN 1 ELSE 2 END, color, name COLLATE NOCASE")
     fun getCategories(): Flow<List<CategoryEntity>>
 
     @Insert

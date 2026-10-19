@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.operation.CategoryType
 import com.ragicorp.macassette.ui.theme.CategoryColors
 import kotlinx.coroutines.launch
 
@@ -54,7 +55,7 @@ fun AddCategoryBottomSheet(
     val name by viewModel.name
     val color by viewModel.color
     val budget by viewModel.budget
-    val isEarning by viewModel.isEarning
+    val type by viewModel.type
     val canSave by viewModel.canSave
     val sheetState =
         rememberBottomSheetState(
@@ -91,11 +92,11 @@ fun AddCategoryBottomSheet(
                 label = { Text(stringResource(R.string.addCategory_name)) },
                 singleLine = true,
             )
-            EarningSelector(
-                isEarning = isEarning,
-                onIsEarningChange = viewModel::setIsEarning,
+            TypeSelector(
+                type = type,
+                onTypeChange = viewModel::setType,
             )
-            AnimatedVisibility(visible = !isEarning) {
+            AnimatedVisibility(visible = type == CategoryType.Expense) {
                 OutlinedTextField(
                     value = budget,
                     onValueChange = viewModel::setBudget,
@@ -130,16 +131,21 @@ fun AddCategoryBottomSheet(
 }
 
 @Composable
-private fun EarningSelector(
-    isEarning: Boolean,
-    onIsEarningChange: (Boolean) -> Unit,
+private fun TypeSelector(
+    type: CategoryType,
+    onTypeChange: (CategoryType) -> Unit,
 ) {
-    val options = listOf(false to R.string.addCategory_expense, true to R.string.addCategory_earning)
+    val options =
+        listOf(
+            CategoryType.Expense to R.string.addCategory_expense,
+            CategoryType.Earning to R.string.addCategory_earning,
+            CategoryType.Internal to R.string.addCategory_internal,
+        )
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         options.forEachIndexed { index, (value, text) ->
             SegmentedButton(
-                selected = isEarning == value,
-                onClick = { onIsEarningChange(value) },
+                selected = type == value,
+                onClick = { onTypeChange(value) },
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
             ) {
                 Text(stringResource(text))

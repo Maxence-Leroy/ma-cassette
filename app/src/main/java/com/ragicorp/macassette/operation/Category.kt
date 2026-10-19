@@ -5,5 +5,11 @@ data class Category(
     val name: String,
     val color: Int,
     val budget: Double? = null,
-    val isEarning: Boolean,
+    val type: CategoryType,
 )
+
+enum class CategoryType {
+    Expense,
+    Earning,
+    Internal,
+}

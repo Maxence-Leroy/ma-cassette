@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.CategoryType
 import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
@@ -30,8 +31,8 @@ class AddCategoryViewModel(
     private val _budget = mutableStateOf("")
     val budget: State<String> = _budget
 
-    private val _isEarning = mutableStateOf(false)
-    val isEarning: State<Boolean> = _isEarning
+    private val _type = mutableStateOf(CategoryType.Expense)
+    val type: State<CategoryType> = _type
 
     val canSave: State<Boolean> = derivedStateOf { _name.value.isNotBlank() && _color.value != null }
 
@@ -49,8 +50,8 @@ class AddCategoryViewModel(
         }
     }
 
-    fun setIsEarning(isEarning: Boolean) {
-        _isEarning.value = isEarning
+    fun setType(type: CategoryType) {
+        _type.value = type
     }
 
     fun save(onSaved: () -> Unit) {
@@ -60,9 +61,9 @@ class AddCategoryViewModel(
             Category(
                 name = _name.value.trim(),
                 color = color,
-                // The budget field is hidden for earnings, so ignore any value left over from expense mode
-                budget = if (_isEarning.value) null else _budget.value.replace(',', '.').toDoubleOrNull(),
-                isEarning = _isEarning.value,
+                // The budget field is only shown for expenses, so ignore any value left over from expense mode
+                budget = if (_type.value == CategoryType.Expense) _budget.value.replace(',', '.').toDoubleOrNull() else null,
+                type = _type.value,
             )
         viewModelScope.launch {
             operationRepository.insertCategory(category)

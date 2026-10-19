@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "bba9c80a8f8e0c61bfb04d02bfb9f408",
+    "identityHash": "a6ca9b26900f54c853323bcf13c10612",
     "entities": [
       {
         "tableName": "Operation",
@@ -94,7 +94,7 @@
       },
       {
         "tableName": "Category",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL, `budget` REAL, `isEarning` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `color` INTEGER NOT NULL, `budget` REAL, `type` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -120,9 +120,9 @@
             "affinity": "REAL"
           },
           {
-            "fieldPath": "isEarning",
-            "columnName": "isEarning",
-            "affinity": "INTEGER",
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -136,7 +136,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'bba9c80a8f8e0c61bfb04d02bfb9f408')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a6ca9b26900f54c853323bcf13c10612')"
     ]
   }
 }

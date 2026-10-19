@@ -22,6 +22,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.CategoryType
 import com.ragicorp.macassette.screens.settings.addcategory.AddCategoryBottomSheet
 import dev.vicart.compose.material.symbols.MaterialSymbol
 
@@ -93,11 +94,13 @@ fun CategoriesSetting(
 
 @Composable
 private fun categoriesSummary(categories: List<Category>): String {
-    val earningCount = categories.count { it.isEarning }
-    val expenseCount = categories.size - earningCount
+    val expenseCount = categories.count { it.type == CategoryType.Expense }
+    val earningCount = categories.count { it.type == CategoryType.Earning }
+    val internalCount = categories.count { it.type == CategoryType.Internal }
     return stringResource(
         R.string.settings_categoriesSummary,
         pluralStringResource(R.plurals.settings_expenseCount, expenseCount, expenseCount),
         pluralStringResource(R.plurals.settings_earningCount, earningCount, earningCount),
+        pluralStringResource(R.plurals.settings_internalCount, internalCount, internalCount),
     )
 }

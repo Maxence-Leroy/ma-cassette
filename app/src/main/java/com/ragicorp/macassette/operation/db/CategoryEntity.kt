@@ -3,6 +3,7 @@ package com.ragicorp.macassette.operation.db
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.CategoryType
 
 // Table name pinned to the pre-split class name so the schema stays unchanged
 @Entity(tableName = "Category")
@@ -11,7 +12,7 @@ data class CategoryEntity(
     val name: String,
     val color: Int,
     val budget: Double? = null,
-    val isEarning: Boolean,
+    val type: CategoryType,
 ) {
     fun toCategory() =
         Category(
@@ -19,7 +20,7 @@ data class CategoryEntity(
             name = name,
             color = color,
             budget = budget,
-            isEarning = isEarning,
+            type = type,
         )
 }
 
@@ -29,5 +30,5 @@ fun Category.toEntity() =
         name = name,
         color = color,
         budget = budget,
-        isEarning = isEarning,
+        type = type,
     )
