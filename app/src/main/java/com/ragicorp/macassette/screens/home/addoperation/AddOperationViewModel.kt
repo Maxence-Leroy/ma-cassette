@@ -5,11 +5,9 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
 import org.threeten.bp.LocalDate
-
-// Digits with at most one decimal separator (',' for French, '.' for English) and 2 decimals
-private val AMOUNT_REGEX = Regex("""^\d*([.,]\d{0,2})?$""")
 
 class AddOperationViewModel(
     application: Application,

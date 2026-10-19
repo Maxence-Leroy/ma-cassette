@@ -15,4 +15,10 @@
     <string name="settings_title">Paramètres</string>
     <string name="settings_currency">Symbole monétaire</string>
     <string name="settings_categories">Catégories</string>
+    <string name="settings_addCategory">Ajouter une catégorie</string>
+    <string name="addCategory_name">Nom</string>
+    <string name="addCategory_color">Couleur</string>
+    <string name="addCategory_budget">Enveloppe pour un mois (optionnel)</string>
+    <string name="addCategory_expense">Dépense</string>
+    <string name="addCategory_earning">Revenu</string>
 </resources>

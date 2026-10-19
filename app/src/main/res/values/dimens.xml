@@ -1,4 +1,6 @@
 <resources>
     <dimen name="single_space">8dp</dimen>
     <dimen name="double_space">16dp</dimen>
+    <dimen name="color_swatch">40dp</dimen>
+    <dimen name="color_swatch_border">3dp</dimen>
 </resources>
