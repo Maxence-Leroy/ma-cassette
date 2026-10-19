@@ -10,7 +10,7 @@ something is missing (tests, lint), that's noted explicitly rather than invented
 
 - Single module: `:app`. `namespace` / `applicationId` = `com.ragicorp.macassette`.
 - `compileSdk = release(37)`, `minSdk = 24`, `targetSdk = 37`.
-  Java target 11. Kotlin `2.4.20`, AGP `9.4.1`, Gradle `9.8.0`.
+  Java target 11. Kotlin `2.4.21`, AGP `9.4.1`, Gradle `9.8.1`.
 - AGP 9's built-in Kotlin support is used — there is no separate `org.jetbrains.kotlin.android`
   plugin applied (removed from both `build.gradle.kts` and `app/build.gradle.kts`);
   `org.jetbrains.kotlin.plugin.compose` and `org.jetbrains.kotlin.plugin.serialization` are still
@@ -22,8 +22,8 @@ something is missing (tests, lint), that's noted explicitly rather than invented
   `app/build.gradle.kts` never declares inline coordinates or versions. Add new deps to the catalog
   first, then reference via `libs.*` / `libs.plugins.*`.
 - Compose libraries take their versions from the Compose BOM, **except material3**, which is pinned
-  to the alpha `1.5.0-alpha29` via `material3` in the catalog because `FloatingActionButtonMenu`
-  (used by `HomeFabMenu`) only exists in the 1.5.0 alphas. Once a Compose BOM ships a material3
+  to the pre-release `1.5.0-beta01` via `material3` in the catalog because `FloatingActionButtonMenu`
+  (used by `HomeFabMenu`) only exists in the 1.5.0 pre-releases. Once a Compose BOM ships a material3
   version that includes `FloatingActionButtonMenu`, bump the BOM, then remove the `material3`
   version entry and the `version.ref = "material3"` on `androidx-compose-material3` so it goes back
   to being BOM-managed.
