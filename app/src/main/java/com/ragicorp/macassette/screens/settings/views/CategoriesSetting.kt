@@ -29,10 +29,13 @@ import dev.vicart.compose.material.symbols.MaterialSymbol
 fun CategoriesSetting(
     categories: List<Category>,
     currency: String,
+    onDeleteCategory: (Category) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var showAddCategorySheet by rememberSaveable { mutableStateOf(false) }
+    // Keep the id rather than the category so it survives configuration changes
+    var categoryIdToDelete by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Column(modifier = modifier) {
         ListItem(
@@ -52,7 +55,7 @@ fun CategoriesSetting(
                         category = it,
                         currency = currency,
                         onEditClick = {},
-                        onDeleteClick = {},
+                        onDeleteClick = { categoryIdToDelete = it.id },
                     )
                 }
                 TextButton(
@@ -74,6 +77,17 @@ fun CategoriesSetting(
         CompositionLocalProvider(LocalViewModelStoreOwner provides rememberViewModelStoreOwner()) {
             AddCategoryBottomSheet(onDismissRequest = { showAddCategorySheet = false })
         }
+    }
+
+    categories.find { it.id == categoryIdToDelete }?.let { category ->
+        DeleteCategoryDialog(
+            category = category,
+            onConfirm = {
+                onDeleteCategory(category)
+                categoryIdToDelete = null
+            },
+            onDismissRequest = { categoryIdToDelete = null },
+        )
     }
 }
 

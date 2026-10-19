@@ -27,6 +27,10 @@ class SettingsViewModel(
         }
     }
 
+    fun deleteCategory(category: Category) {
+        viewModelScope.launch { operationRepository.deleteCategory(category) }
+    }
+
     fun setCurrency(currency: String) {
         Preferences.setCurrency(getApplication(), currency)
         _currency.value = Preferences.getCurrency(getApplication())

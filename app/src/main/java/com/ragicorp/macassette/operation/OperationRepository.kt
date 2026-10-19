@@ -16,4 +16,6 @@ class OperationRepository(
     fun getCategories(): Flow<List<Category>> = operationDao.getCategories().map { categories -> categories.map { it.toCategory() } }
 
     suspend fun insertCategory(category: Category) = operationDao.insertCategory(category.toEntity())
+
+    suspend fun deleteCategory(category: Category) = operationDao.deleteCategory(category.toEntity())
 }

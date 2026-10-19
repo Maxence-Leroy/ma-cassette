@@ -61,6 +61,7 @@ fun SettingsScreen(
             CategoriesSetting(
                 categories = categories,
                 currency = currency,
+                onDeleteCategory = viewModel::deleteCategory,
             )
         }
     }

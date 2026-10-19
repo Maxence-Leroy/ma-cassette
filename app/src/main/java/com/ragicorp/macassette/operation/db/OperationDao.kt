@@ -1,6 +1,7 @@
 package com.ragicorp.macassette.operation.db
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Embedded
 import androidx.room.Insert
 import androidx.room.Query
@@ -22,6 +23,9 @@ interface OperationDao {
 
     @Insert
     suspend fun insertCategory(category: CategoryEntity)
+
+    @Delete
+    suspend fun deleteCategory(category: CategoryEntity)
 }
 
 data class OperationWithCategory(
