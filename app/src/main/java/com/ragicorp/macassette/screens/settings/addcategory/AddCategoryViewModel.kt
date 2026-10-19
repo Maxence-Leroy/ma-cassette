@@ -12,6 +12,8 @@ import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.launch
 
+private const val MAX_BUDGET = 9_999_999.99
+
 class AddCategoryViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
@@ -42,7 +44,9 @@ class AddCategoryViewModel(
     }
 
     fun setBudget(budget: String) {
-        if (AMOUNT_REGEX.matches(budget)) _budget.value = budget
+        if (AMOUNT_REGEX.matches(budget) && (budget.replace(',', '.').toDoubleOrNull() ?: 0.0) <= MAX_BUDGET) {
+            _budget.value = budget
+        }
     }
 
     fun setIsEarning(isEarning: Boolean) {

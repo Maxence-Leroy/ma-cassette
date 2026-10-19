@@ -16,6 +16,9 @@
     <string name="settings_currency">Symbole monétaire</string>
     <string name="settings_categories">Catégories</string>
     <string name="settings_addCategory">Ajouter une catégorie</string>
+    <string name="settings_categoryExpense">Dépense</string>
+    <string name="settings_categoryEarning">Revenu</string>
+    <string name="settings_categoryBudget">Dépense · enveloppe de %1$s\u202F%2$s par mois</string>
     <string name="addCategory_name">Nom</string>
     <string name="addCategory_color">Couleur</string>
     <string name="addCategory_budget">Enveloppe pour un mois (optionnel)</string>

@@ -1,6 +1,7 @@
 package com.ragicorp.macassette.screens.settings.views
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ButtonDefaults
@@ -19,11 +20,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.screens.settings.addcategory.AddCategoryBottomSheet
 import dev.vicart.compose.material.symbols.MaterialSymbol
 
 @Composable
-fun CategoriesSetting(modifier: Modifier = Modifier) {
+fun CategoriesSetting(
+    categories: List<Category>,
+    currency: String,
+    modifier: Modifier = Modifier,
+) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     var showAddCategorySheet by rememberSaveable { mutableStateOf(false) }
 
@@ -35,7 +41,13 @@ fun CategoriesSetting(modifier: Modifier = Modifier) {
             Text(stringResource(R.string.settings_categories))
         }
         AnimatedVisibility(visible = expanded) {
-            Column(modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.double_space))) {
+            Column(
+                modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.double_space)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.single_space)),
+            ) {
+                categories.forEach {
+                    CategoryCard(category = it, currency = currency)
+                }
                 TextButton(
                     onClick = { showAddCategorySheet = true },
                     contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,

@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
 import com.ragicorp.macassette.operation.Operation
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface OperationDao {
@@ -15,6 +16,9 @@ interface OperationDao {
     @Transaction
     @Query("SELECT * FROM Operation")
     suspend fun getOperationsWithCategory(): List<OperationWithCategory>
+
+    @Query("SELECT * FROM Category ORDER BY isEarning, color, name COLLATE NOCASE")
+    fun getCategories(): Flow<List<CategoryEntity>>
 
     @Insert
     suspend fun insertCategory(category: CategoryEntity)

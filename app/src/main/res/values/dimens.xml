@@ -3,4 +3,5 @@
     <dimen name="double_space">16dp</dimen>
     <dimen name="color_swatch">40dp</dimen>
     <dimen name="color_swatch_border">3dp</dimen>
+    <dimen name="category_color">24dp</dimen>
 </resources>
