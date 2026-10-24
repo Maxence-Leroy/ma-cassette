@@ -23,7 +23,7 @@ import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.CategoryType
-import com.ragicorp.macassette.screens.settings.addcategory.AddCategoryBottomSheet
+import com.ragicorp.macassette.screens.settings.categoryform.CategoryFormBottomSheet
 import dev.vicart.compose.material.symbols.MaterialSymbol
 
 @Composable
@@ -36,6 +36,7 @@ fun CategoriesSetting(
     var expanded by rememberSaveable { mutableStateOf(false) }
     var showAddCategorySheet by rememberSaveable { mutableStateOf(false) }
     // Keep the id rather than the category so it survives configuration changes
+    var categoryIdToEdit by rememberSaveable { mutableStateOf<Long?>(null) }
     var categoryIdToDelete by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Column(modifier = modifier) {
@@ -55,7 +56,7 @@ fun CategoriesSetting(
                     CategoryCard(
                         category = it,
                         currency = currency,
-                        onEditClick = {},
+                        onEditClick = { categoryIdToEdit = it.id },
                         onDeleteClick = { categoryIdToDelete = it.id },
                     )
                 }
@@ -76,7 +77,17 @@ fun CategoriesSetting(
     if (showAddCategorySheet) {
         // Scope the ViewModel to the sheet so the form starts empty every time it opens
         CompositionLocalProvider(LocalViewModelStoreOwner provides rememberViewModelStoreOwner()) {
-            AddCategoryBottomSheet(onDismissRequest = { showAddCategorySheet = false })
+            CategoryFormBottomSheet(onDismissRequest = { showAddCategorySheet = false })
+        }
+    }
+
+    categories.find { it.id == categoryIdToEdit }?.let { category ->
+        // Scope the ViewModel to the sheet so the form is prefilled from this category every time it opens
+        CompositionLocalProvider(LocalViewModelStoreOwner provides rememberViewModelStoreOwner()) {
+            CategoryFormBottomSheet(
+                onDismissRequest = { categoryIdToEdit = null },
+                category = category,
+            )
         }
     }
 

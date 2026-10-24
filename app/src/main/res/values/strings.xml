@@ -39,11 +39,12 @@
         <item quantity="many">%d internes</item>
         <item quantity="other">%d internes</item>
     </plurals>
-    <string name="addCategory_name">Nom</string>
-    <string name="addCategory_color">Couleur</string>
-    <string name="addCategory_budget">Enveloppe pour un mois (optionnel)</string>
-    <string name="addCategory_expense">Dépense</string>
-    <string name="addCategory_earning">Revenu</string>
-    <string name="addCategory_internal">Interne</string>
-    <string name="addCategory_save">Enregistrer</string>
+    <string name="categoryForm_name">Nom</string>
+    <string name="categoryForm_color">Couleur</string>
+    <string name="categoryForm_budget">Enveloppe pour un mois (optionnel)</string>
+    <string name="categoryForm_expense">Dépense</string>
+    <string name="categoryForm_earning">Revenu</string>
+    <string name="categoryForm_internal">Interne</string>
+    <string name="categoryForm_editTitle">Modifier la catégorie</string>
+    <string name="categoryForm_save">Enregistrer</string>
 </resources>

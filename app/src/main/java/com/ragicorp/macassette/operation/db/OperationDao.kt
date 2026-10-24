@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
+import androidx.room.Update
 import com.ragicorp.macassette.operation.Operation
 import kotlinx.coroutines.flow.Flow
 
@@ -23,6 +24,9 @@ interface OperationDao {
 
     @Insert
     suspend fun insertCategory(category: CategoryEntity)
+
+    @Update
+    suspend fun updateCategory(category: CategoryEntity)
 
     @Delete
     suspend fun deleteCategory(category: CategoryEntity)

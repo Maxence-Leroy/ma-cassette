@@ -17,5 +17,7 @@ class OperationRepository(
 
     suspend fun insertCategory(category: Category) = operationDao.insertCategory(category.toEntity())
 
+    suspend fun updateCategory(category: Category) = operationDao.updateCategory(category.toEntity())
+
     suspend fun deleteCategory(category: Category) = operationDao.deleteCategory(category.toEntity())
 }

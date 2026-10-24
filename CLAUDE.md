@@ -36,7 +36,7 @@ something is missing (e.g. there are no tests), that's noted explicitly rather t
   package holds a `<Feature>Screen.kt`, plus its ViewModel when the screen has state.
 - A bottom sheet with its own form gets its own sub-package inside the feature that opens it, with a
   `<Name>BottomSheet.kt` + `<Name>ViewModel.kt` pair (e.g. `screens/home/addoperation/`,
-  `screens/settings/addcategory/`).
+  `screens/settings/categoryform/`).
 - Cross-cutting code: `ui/theme/`, `ui/views/` (shared composables), `utils/`.
 - Navigation uses **Navigation Compose with type-safe routes**: each destination is a
   `@Serializable` route (`data object` for no args, `data class` for args) declared next to its

@@ -1,5 +1,6 @@
-package com.ragicorp.macassette.screens.settings.addcategory
+package com.ragicorp.macassette.screens.settings.categoryform
 
+import android.app.Application
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,22 +36,32 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.CategoryType
 import com.ragicorp.macassette.ui.theme.CategoryColors
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddCategoryBottomSheet(
+fun CategoryFormBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: AddCategoryViewModel = viewModel(),
+    category: Category? = null,
+    viewModel: CategoryFormViewModel =
+        viewModel(
+            factory =
+                CategoryFormViewModel.CategoryFormViewModelFactory(
+                    application = LocalContext.current.applicationContext as Application,
+                    editedCategory = category,
+                ),
+        ),
 ) {
     val name by viewModel.name
     val color by viewModel.color
@@ -82,14 +93,14 @@ fun AddCategoryBottomSheet(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.single_space)),
         ) {
             Text(
-                text = stringResource(R.string.settings_addCategory),
+                text = stringResource(if (category == null) R.string.settings_addCategory else R.string.categoryForm_editTitle),
                 style = MaterialTheme.typography.titleLarge,
             )
             OutlinedTextField(
                 value = name,
                 onValueChange = viewModel::setName,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.addCategory_name)) },
+                label = { Text(stringResource(R.string.categoryForm_name)) },
                 singleLine = true,
             )
             TypeSelector(
@@ -101,14 +112,14 @@ fun AddCategoryBottomSheet(
                     value = budget,
                     onValueChange = viewModel::setBudget,
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(stringResource(R.string.addCategory_budget)) },
+                    label = { Text(stringResource(R.string.categoryForm_budget)) },
                     suffix = { Text(viewModel.currency) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 )
             }
             Text(
-                text = stringResource(R.string.addCategory_color),
+                text = stringResource(R.string.categoryForm_color),
                 style = MaterialTheme.typography.titleSmall,
             )
             ColorSelector(
@@ -124,7 +135,7 @@ fun AddCategoryBottomSheet(
                 modifier = Modifier.align(Alignment.End),
                 enabled = canSave,
             ) {
-                Text(stringResource(R.string.addCategory_save))
+                Text(stringResource(R.string.categoryForm_save))
             }
         }
     }
@@ -137,9 +148,9 @@ private fun TypeSelector(
 ) {
     val options =
         listOf(
-            CategoryType.Expense to R.string.addCategory_expense,
-            CategoryType.Earning to R.string.addCategory_earning,
-            CategoryType.Internal to R.string.addCategory_internal,
+            CategoryType.Expense to R.string.categoryForm_expense,
+            CategoryType.Earning to R.string.categoryForm_earning,
+            CategoryType.Internal to R.string.categoryForm_internal,
         )
     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
         options.forEachIndexed { index, (value, text) ->
