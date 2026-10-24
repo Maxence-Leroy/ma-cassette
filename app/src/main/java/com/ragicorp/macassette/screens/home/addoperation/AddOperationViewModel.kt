@@ -2,11 +2,14 @@ package com.ragicorp.macassette.screens.home.addoperation
 
 import android.app.Application
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.Operation
 import com.ragicorp.macassette.operation.OperationRepository
+import com.ragicorp.macassette.operation.OperationState
 import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.launch
@@ -40,6 +43,9 @@ class AddOperationViewModel(
     private val _notes = mutableStateOf("")
     val notes: State<String> = _notes
 
+    val canSave: State<Boolean> =
+        derivedStateOf { _category.value != null && _name.value.isNotBlank() && parsedAmount() != null }
+
     init {
         viewModelScope.launch {
             operationRepository.getCategories().collect { _categories.value = it }
@@ -69,4 +75,32 @@ class AddOperationViewModel(
     fun setNotes(notes: String) {
         _notes.value = notes
     }
+
+    fun save(onSaved: () -> Unit) {
+        val category = _category.value ?: return
+        val amount = parsedAmount() ?: return
+        if (_name.value.isBlank()) return
+        val operation =
+            Operation(
+                id = 0,
+                category = category,
+                date = _date.value,
+                // Expenses are stored as negative amounts
+                amount = if (_isEarning.value) amount else -amount,
+                label = _name.value.trim(),
+                notes = _notes.value.trim(),
+                isWaitingForAction = false,
+                state = OperationState.ManuallyAdded,
+            )
+        viewModelScope.launch {
+            operationRepository.insertOperation(operation)
+            onSaved()
+        }
+    }
+
+    private fun parsedAmount() =
+        _amount.value
+            .replace(',', '.')
+            .toDoubleOrNull()
+            ?.takeIf { it > 0 }
 }

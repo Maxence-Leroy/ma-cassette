@@ -17,6 +17,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -37,6 +38,7 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,6 +55,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
 import dev.vicart.compose.material.symbols.MaterialSymbol
+import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.FormatStyle
@@ -73,16 +76,19 @@ fun AddOperationBottomSheet(
     val amount by viewModel.amount
     val isEarning by viewModel.isEarning
     val notes by viewModel.notes
+    val canSave by viewModel.canSave
+    val sheetState =
+        rememberBottomSheetState(
+            initialValue = SheetValue.Hidden,
+            enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+        )
+    val scope = rememberCoroutineScope()
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         modifier = modifier,
-        sheetState =
-            rememberBottomSheetState(
-                initialValue = SheetValue.Hidden,
-                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-            ),
+        sheetState = sheetState,
     ) {
         Column(
             modifier =
@@ -141,6 +147,17 @@ fun AddOperationBottomSheet(
                 label = { Text(stringResource(R.string.addOperation_notes)) },
                 minLines = 3,
             )
+            Button(
+                onClick = {
+                    viewModel.save {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
+                    }
+                },
+                modifier = Modifier.align(Alignment.End),
+                enabled = canSave,
+            ) {
+                Text(stringResource(R.string.addOperation_save))
+            }
         }
     }
 

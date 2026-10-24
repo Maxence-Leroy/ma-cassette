@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.ragicorp.macassette.operation.Operation
 import com.ragicorp.macassette.operation.OperationState
 import org.threeten.bp.LocalDate
 import org.threeten.bp.Period
@@ -31,3 +32,16 @@ data class OperationEntity(
     val isWaitingForAction: Boolean,
     val state: OperationState,
 )
+
+fun Operation.toEntity() =
+    OperationEntity(
+        id = id,
+        categoryId = category?.id,
+        date = date,
+        amount = amount,
+        label = label,
+        notes = notes,
+        recurrentPeriod = recurrentPeriod,
+        isWaitingForAction = isWaitingForAction,
+        state = state,
+    )
