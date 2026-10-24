@@ -119,8 +119,10 @@ something is missing (e.g. there are no tests), that's noted explicitly rather t
 ## Git conventions
 
 - Commit subjects follow a lightweight Conventional-Commits style: `feat: ...`, `fix: ...`,
-  `chore: ...`, short and imperative (2-6 words), no scopes, no body text (e.g.
+  `refactor: ...`, `chore: ...`, short and imperative (2-6 words), no scopes, no body text (e.g.
   `feat: delete storage element`, `fix: changing level 1 remove level 2`).
+- `refactor:` is for code changes that don't change behavior (e.g. restructuring state); `chore:`
+  is only for tooling, config and build housekeeping.
 - No `.github/` CI workflows, no CONTRIBUTING.md, no CODEOWNERS.
 - **Never run `git commit` unless the user explicitly asks for a commit in that specific turn.**
   Finishing a task, fixing a bug, or the user saying "looks good"/confirming a change works are NOT
