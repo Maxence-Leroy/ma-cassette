@@ -4,17 +4,23 @@ import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
+import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 
 class AddOperationViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
+    private val operationRepository = OperationRepository(application)
+
     val currency = Preferences.getCurrency(application)
 
-    val categories = emptyList<Category>()
+    private val _categories = mutableStateOf<List<Category>>(emptyList())
+    val categories: State<List<Category>> = _categories
 
     private val _date = mutableStateOf(LocalDate.now())
     val date: State<LocalDate> = _date
@@ -33,6 +39,12 @@ class AddOperationViewModel(
 
     private val _notes = mutableStateOf("")
     val notes: State<String> = _notes
+
+    init {
+        viewModelScope.launch {
+            operationRepository.getCategories().collect { _categories.value = it }
+        }
+    }
 
     fun setDate(date: LocalDate) {
         _date.value = date
