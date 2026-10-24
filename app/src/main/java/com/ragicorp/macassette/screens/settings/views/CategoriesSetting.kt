@@ -13,6 +13,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -25,6 +26,7 @@ import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.CategoryType
 import com.ragicorp.macassette.screens.settings.categoryform.CategoryFormBottomSheet
 import dev.vicart.compose.material.symbols.MaterialSymbol
+import kotlinx.serialization.Serializable
 
 @Composable
 fun CategoriesSetting(
@@ -34,9 +36,7 @@ fun CategoriesSetting(
     modifier: Modifier = Modifier,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
-    var showAddCategorySheet by rememberSaveable { mutableStateOf(false) }
-    // Keep the id rather than the category so it survives configuration changes
-    var categoryIdToEdit by rememberSaveable { mutableStateOf<Long?>(null) }
+    var showCategoryBottomSheet by rememberSerializable { mutableStateOf<ShowCategoryBottomSheet>(ShowCategoryBottomSheet.Hidden) }
     var categoryIdToDelete by rememberSaveable { mutableStateOf<Long?>(null) }
 
     Column(modifier = modifier) {
@@ -56,12 +56,12 @@ fun CategoriesSetting(
                     CategoryCard(
                         category = it,
                         currency = currency,
-                        onEditClick = { categoryIdToEdit = it.id },
+                        onEditClick = { showCategoryBottomSheet = ShowCategoryBottomSheet.Edit(it.id) },
                         onDeleteClick = { categoryIdToDelete = it.id },
                     )
                 }
                 TextButton(
-                    onClick = { showAddCategorySheet = true },
+                    onClick = { showCategoryBottomSheet = ShowCategoryBottomSheet.Add },
                     contentPadding = ButtonDefaults.TextButtonWithIconContentPadding,
                 ) {
                     MaterialSymbol.Filled("add")
@@ -74,19 +74,16 @@ fun CategoriesSetting(
         }
     }
 
-    if (showAddCategorySheet) {
-        // Scope the ViewModel to the sheet so the form starts empty every time it opens
-        CompositionLocalProvider(LocalViewModelStoreOwner provides rememberViewModelStoreOwner()) {
-            CategoryFormBottomSheet(onDismissRequest = { showAddCategorySheet = false })
+    val categoryToEdit =
+        (showCategoryBottomSheet as? ShowCategoryBottomSheet.Edit)?.let { sheet ->
+            categories.find { it.id == sheet.categoryId }
         }
-    }
-
-    categories.find { it.id == categoryIdToEdit }?.let { category ->
-        // Scope the ViewModel to the sheet so the form is prefilled from this category every time it opens
+    if (showCategoryBottomSheet == ShowCategoryBottomSheet.Add || categoryToEdit != null) {
+        // Scope the ViewModel to the sheet so the form starts empty (or prefilled from the edited category) every time it opens
         CompositionLocalProvider(LocalViewModelStoreOwner provides rememberViewModelStoreOwner()) {
             CategoryFormBottomSheet(
-                onDismissRequest = { categoryIdToEdit = null },
-                category = category,
+                onDismissRequest = { showCategoryBottomSheet = ShowCategoryBottomSheet.Hidden },
+                category = categoryToEdit,
             )
         }
     }
@@ -101,6 +98,20 @@ fun CategoriesSetting(
             onDismissRequest = { categoryIdToDelete = null },
         )
     }
+}
+
+@Serializable
+private sealed class ShowCategoryBottomSheet {
+    @Serializable
+    data object Hidden : ShowCategoryBottomSheet()
+
+    @Serializable
+    data object Add : ShowCategoryBottomSheet()
+
+    @Serializable
+    data class Edit(
+        val categoryId: Long,
+    ) : ShowCategoryBottomSheet()
 }
 
 @Composable
