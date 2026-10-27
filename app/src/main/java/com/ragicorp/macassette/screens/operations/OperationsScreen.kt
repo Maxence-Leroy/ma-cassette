@@ -16,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.screens.operations.views.DeleteOperationDialog
 import com.ragicorp.macassette.screens.operations.views.OperationCard
 import com.ragicorp.macassette.screens.operations.views.OperationDateHeader
 import kotlinx.coroutines.delay
@@ -46,6 +48,7 @@ fun OperationsScreen(
     val listState = rememberLazyListState()
     var swipedOperationId by remember { mutableStateOf<Long?>(null) }
     var pressedOperationId by remember { mutableStateOf<Long?>(null) }
+    var operationIdToDelete by rememberSaveable { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(swipedOperationId) {
         if (swipedOperationId != null) {
@@ -100,7 +103,7 @@ fun OperationsScreen(
                             }
                         },
                         onEditClick = {},
-                        onDeleteClick = {},
+                        onDeleteClick = { operationIdToDelete = operation.id },
                         modifier =
                             Modifier
                                 .pointerInput(operation.id) {
@@ -114,6 +117,17 @@ fun OperationsScreen(
                 }
             }
         }
+    }
+
+    operations.find { it.id == operationIdToDelete }?.let { operation ->
+        DeleteOperationDialog(
+            operation = operation,
+            onConfirm = {
+                viewModel.deleteOperation(operation)
+                operationIdToDelete = null
+            },
+            onDismissRequest = { operationIdToDelete = null },
+        )
     }
 }
 

@@ -9,6 +9,7 @@ import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class OperationsViewModel(
     application: Application,
@@ -21,4 +22,8 @@ class OperationsViewModel(
         operationRepository
             .getOperations()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun deleteOperation(operation: Operation) {
+        viewModelScope.launch { operationRepository.deleteOperation(operation) }
+    }
 }

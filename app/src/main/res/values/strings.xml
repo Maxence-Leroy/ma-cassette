@@ -15,6 +15,9 @@
     <string name="operations_empty">Aucune opération</string>
     <string name="operations_noCategory">Sans catégorie</string>
     <string name="operations_amount">%1$s\u202F%2$s</string>
+    <string name="operations_deleteOperationTitle">Supprimer l’opération ?</string>
+    <string name="operations_deleteOperationMessage">\"%1$s\" sera supprimée.</string>
+    <string name="operations_deleteOperationConfirm">Supprimer</string>
     <string name="importOperations_title">Importer un relevé d’opérations</string>
     <string name="settings_title">Paramètres</string>
     <string name="settings_currency">Symbole monétaire</string>

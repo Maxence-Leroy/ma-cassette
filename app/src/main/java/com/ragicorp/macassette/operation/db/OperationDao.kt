@@ -20,6 +20,9 @@ interface OperationDao {
     @Insert
     suspend fun insertOperation(operation: OperationEntity)
 
+    @Delete
+    suspend fun deleteOperation(operation: OperationEntity)
+
     @Query("SELECT * FROM Category ORDER BY CASE type WHEN 'Expense' THEN 0 WHEN 'Earning' THEN 1 ELSE 2 END, color, name COLLATE NOCASE")
     fun getCategories(): Flow<List<CategoryEntity>>
 
