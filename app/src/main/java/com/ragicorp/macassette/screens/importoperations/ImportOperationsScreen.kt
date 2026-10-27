@@ -75,15 +75,15 @@ fun ImportOperationsScreen(
             horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.double_space)),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Button(onClick = { filePicker.launch(CSV_MIME_TYPES) }) {
-                Text(stringResource(R.string.importOperations_selectFile))
-            }
             fileName?.let {
                 Text(
                     text = it,
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.bodyMedium,
                 )
+            }
+            Button(onClick = { filePicker.launch(CSV_MIME_TYPES) }) {
+                Text(stringResource(R.string.importOperations_selectFile))
             }
         }
     }
