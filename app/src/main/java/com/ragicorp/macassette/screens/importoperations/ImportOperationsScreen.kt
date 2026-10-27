@@ -1,19 +1,32 @@
 package com.ragicorp.macassette.screens.importoperations
 
-import androidx.compose.foundation.layout.Box
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
+
+// Some file providers label CSV files with a non-standard type, so accept the common ones
+private val CSV_MIME_TYPES = arrayOf("text/csv", "text/comma-separated-values", "application/csv", "text/plain")
 
 @Serializable
 data object ImportOperations
@@ -23,7 +36,15 @@ data object ImportOperations
 fun ImportOperationsScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    viewModel: ImportOperationsViewModel = viewModel(),
 ) {
+    val fileName by viewModel.fileName
+    // The system picker grants access to the chosen file, so no storage permission is needed
+    val filePicker =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) viewModel.setFile(uri)
+        }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -37,6 +58,25 @@ fun ImportOperationsScreen(
             )
         },
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize())
+        Row(
+            modifier =
+                Modifier
+                    .padding(paddingValues)
+                    .padding(dimensionResource(R.dimen.double_space))
+                    .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.double_space)),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Button(onClick = { filePicker.launch(CSV_MIME_TYPES) }) {
+                Text(stringResource(R.string.importOperations_selectFile))
+            }
+            fileName?.let {
+                Text(
+                    text = it,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
     }
 }
