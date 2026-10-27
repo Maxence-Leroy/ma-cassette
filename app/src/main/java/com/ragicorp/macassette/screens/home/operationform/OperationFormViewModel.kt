@@ -1,10 +1,12 @@
-package com.ragicorp.macassette.screens.home.addoperation
+package com.ragicorp.macassette.screens.home.operationform
 
 import android.app.Application
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.Operation
@@ -17,9 +19,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
+import java.text.NumberFormat
+import kotlin.math.abs
 
-class AddOperationViewModel(
+class OperationFormViewModel(
     application: Application,
+    private val editedOperation: Operation?,
 ) : AndroidViewModel(application) {
     private val operationRepository = OperationRepository(application)
 
@@ -30,22 +35,34 @@ class AddOperationViewModel(
             .getCategories()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    private val _date = mutableStateOf(LocalDate.now())
+    private val _date = mutableStateOf(editedOperation?.date ?: LocalDate.now())
     val date: State<LocalDate> = _date
 
-    private val _category = mutableStateOf<Category?>(null)
+    private val _category = mutableStateOf(editedOperation?.category)
     val category: State<Category?> = _category
 
-    private val _name = mutableStateOf("")
+    private val _name = mutableStateOf(editedOperation?.label ?: "")
     val name: State<String> = _name
 
-    private val _amount = mutableStateOf("")
+    // Shown as a positive number: the sign is carried by the expense / earning selector
+    private val _amount =
+        mutableStateOf(
+            editedOperation?.amount?.let { abs(it) }?.let {
+                NumberFormat
+                    .getNumberInstance()
+                    .apply {
+                        isGroupingUsed = false
+                        minimumFractionDigits = if (it % 1.0 == 0.0) 0 else 2
+                        maximumFractionDigits = 2
+                    }.format(it)
+            } ?: "",
+        )
     val amount: State<String> = _amount
 
-    private val _isEarning = mutableStateOf(false)
+    private val _isEarning = mutableStateOf(editedOperation?.let { it.amount > 0 } ?: false)
     val isEarning: State<Boolean> = _isEarning
 
-    private val _notes = mutableStateOf("")
+    private val _notes = mutableStateOf(editedOperation?.notes ?: "")
     val notes: State<String> = _notes
 
     val canSave: State<Boolean> =
@@ -81,18 +98,23 @@ class AddOperationViewModel(
         if (_name.value.isBlank()) return
         val operation =
             Operation(
-                id = 0,
+                id = editedOperation?.id ?: 0,
                 category = category,
                 date = _date.value,
                 // Expenses are stored as negative amounts
                 amount = if (_isEarning.value) amount else -amount,
                 label = _name.value.trim(),
                 notes = _notes.value.trim(),
-                isWaitingForAction = false,
-                state = OperationState.ManuallyAdded,
+                recurrentPeriod = editedOperation?.recurrentPeriod,
+                isWaitingForAction = editedOperation?.isWaitingForAction ?: false,
+                state = editedOperation?.state ?: OperationState.ManuallyAdded,
             )
         viewModelScope.launch {
-            operationRepository.insertOperation(operation)
+            if (editedOperation == null) {
+                operationRepository.insertOperation(operation)
+            } else {
+                operationRepository.updateOperation(operation)
+            }
             onSaved()
         }
     }
@@ -102,4 +124,16 @@ class AddOperationViewModel(
             .replace(',', '.')
             .toDoubleOrNull()
             ?.takeIf { it > 0 }
+
+    // The default viewModel() factory can only pass the Application, so this one also passes the operation being
+    // edited (null when adding a new one). It's only used when the ViewModel is first created, which is why the sheet
+    // gets its own ViewModelStoreOwner each time it opens.
+    class OperationFormViewModelFactory(
+        private val application: Application,
+        private val editedOperation: Operation?,
+    ) : ViewModelProvider.NewInstanceFactory() {
+        // Only ever asked for OperationFormViewModel, so the cast to T is safe
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = OperationFormViewModel(application, editedOperation) as T
+    }
 }

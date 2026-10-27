@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,8 +29,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.screens.home.operationform.OperationFormBottomSheet
 import com.ragicorp.macassette.screens.operations.views.DeleteOperationDialog
 import com.ragicorp.macassette.screens.operations.views.OperationCard
 import com.ragicorp.macassette.screens.operations.views.OperationDateHeader
@@ -48,6 +52,7 @@ fun OperationsScreen(
     val listState = rememberLazyListState()
     var swipedOperationId by remember { mutableStateOf<Long?>(null) }
     var pressedOperationId by remember { mutableStateOf<Long?>(null) }
+    var operationIdToEdit by rememberSaveable { mutableStateOf<Long?>(null) }
     var operationIdToDelete by rememberSaveable { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(swipedOperationId) {
@@ -102,7 +107,7 @@ fun OperationsScreen(
                                 swipedOperationId = null
                             }
                         },
-                        onEditClick = {},
+                        onEditClick = { operationIdToEdit = operation.id },
                         onDeleteClick = { operationIdToDelete = operation.id },
                         modifier =
                             Modifier
@@ -116,6 +121,16 @@ fun OperationsScreen(
                     )
                 }
             }
+        }
+    }
+
+    operations.find { it.id == operationIdToEdit }?.let { operation ->
+        // Scope the ViewModel to the sheet so the form is prefilled from the edited operation every time it opens
+        CompositionLocalProvider(LocalViewModelStoreOwner provides rememberViewModelStoreOwner()) {
+            OperationFormBottomSheet(
+                onDismissRequest = { operationIdToEdit = null },
+                operation = operation,
+            )
         }
     }
 

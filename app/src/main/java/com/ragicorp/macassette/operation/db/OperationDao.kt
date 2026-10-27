@@ -20,6 +20,9 @@ interface OperationDao {
     @Insert
     suspend fun insertOperation(operation: OperationEntity)
 
+    @Update
+    suspend fun updateOperation(operation: OperationEntity)
+
     @Delete
     suspend fun deleteOperation(operation: OperationEntity)
 

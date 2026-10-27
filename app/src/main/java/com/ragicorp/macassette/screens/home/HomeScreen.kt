@@ -24,7 +24,7 @@ import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.budget.BudgetScreen
 import com.ragicorp.macassette.screens.distribution.DistributionScreen
-import com.ragicorp.macassette.screens.home.addoperation.AddOperationBottomSheet
+import com.ragicorp.macassette.screens.home.operationform.OperationFormBottomSheet
 import com.ragicorp.macassette.screens.home.views.HomeFabMenu
 import com.ragicorp.macassette.screens.home.views.HomeFabMenuItems
 import com.ragicorp.macassette.screens.operations.OperationsScreen
@@ -99,7 +99,7 @@ fun HomeScreen(
     if (showAddOperationSheet) {
         // Scope the ViewModel to the sheet so the form starts empty every time it opens
         CompositionLocalProvider(LocalViewModelStoreOwner provides rememberViewModelStoreOwner()) {
-            AddOperationBottomSheet(onDismissRequest = { showAddOperationSheet = false })
+            OperationFormBottomSheet(onDismissRequest = { showAddOperationSheet = false })
         }
     }
 }

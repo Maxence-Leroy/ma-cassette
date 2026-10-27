@@ -1,5 +1,6 @@
-package com.ragicorp.macassette.screens.home.addoperation
+package com.ragicorp.macassette.screens.home.operationform
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -47,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -55,6 +57,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.Operation
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
@@ -65,10 +68,18 @@ private const val MILLIS_PER_DAY = 86_400_000L
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddOperationBottomSheet(
+fun OperationFormBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: AddOperationViewModel = viewModel(),
+    operation: Operation? = null,
+    viewModel: OperationFormViewModel =
+        viewModel(
+            factory =
+                OperationFormViewModel.OperationFormViewModelFactory(
+                    application = LocalContext.current.applicationContext as Application,
+                    editedOperation = operation,
+                ),
+        ),
 ) {
     val categories by viewModel.categories.collectAsStateWithLifecycle()
     val date by viewModel.date
@@ -104,7 +115,7 @@ fun AddOperationBottomSheet(
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.single_space)),
         ) {
             Text(
-                text = stringResource(R.string.home_addOperation),
+                text = stringResource(if (operation == null) R.string.home_addOperation else R.string.operationForm_editTitle),
                 style = MaterialTheme.typography.titleLarge,
             )
             DateField(
@@ -120,7 +131,7 @@ fun AddOperationBottomSheet(
                 value = name,
                 onValueChange = viewModel::setName,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.addOperation_name)) },
+                label = { Text(stringResource(R.string.operationForm_name)) },
                 singleLine = true,
             )
             Row(
@@ -131,7 +142,7 @@ fun AddOperationBottomSheet(
                     value = amount,
                     onValueChange = viewModel::setAmount,
                     modifier = Modifier.weight(1f),
-                    label = { Text(stringResource(R.string.addOperation_amount)) },
+                    label = { Text(stringResource(R.string.operationForm_amount)) },
                     suffix = { Text(viewModel.currency) },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
@@ -145,7 +156,7 @@ fun AddOperationBottomSheet(
                 value = notes,
                 onValueChange = viewModel::setNotes,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.addOperation_notes)) },
+                label = { Text(stringResource(R.string.operationForm_notes)) },
                 minLines = 3,
             )
             Button(
@@ -157,7 +168,7 @@ fun AddOperationBottomSheet(
                 modifier = Modifier.align(Alignment.End),
                 enabled = canSave,
             ) {
-                Text(stringResource(R.string.addOperation_save))
+                Text(stringResource(R.string.operationForm_save))
             }
         }
     }
@@ -197,7 +208,7 @@ private fun EarningSelector(
         modifier = Modifier.selectableGroup(),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.single_space)),
     ) {
-        listOf(false to R.string.addOperation_expense, true to R.string.addOperation_earning).forEach { (value, text) ->
+        listOf(false to R.string.operationForm_expense, true to R.string.operationForm_earning).forEach { (value, text) ->
             Row(
                 modifier =
                     Modifier.selectable(
@@ -234,7 +245,7 @@ private fun DateField(
                 }
             },
         readOnly = true,
-        label = { Text(stringResource(R.string.addOperation_date)) },
+        label = { Text(stringResource(R.string.operationForm_date)) },
         trailingIcon = { MaterialSymbol.Filled("calendar_month") },
         singleLine = true,
     )
@@ -261,7 +272,7 @@ private fun CategoryDropdown(
                     .fillMaxWidth()
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
             readOnly = true,
-            label = { Text(stringResource(R.string.addOperation_category)) },
+            label = { Text(stringResource(R.string.operationForm_category)) },
             leadingIcon = selectedCategory?.let { { CategoryColor(it) } },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             singleLine = true,
