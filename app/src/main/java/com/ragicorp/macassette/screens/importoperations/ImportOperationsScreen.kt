@@ -25,8 +25,16 @@ import com.ragicorp.macassette.R
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
 
-// Some file providers label CSV files with a non-standard type, so accept the common ones
-private val CSV_MIME_TYPES = arrayOf("text/csv", "text/comma-separated-values", "application/csv", "text/plain")
+// Some file providers label CSV files with a non-standard type (bank exports often come as Excel), so accept the common ones
+private val CSV_MIME_TYPES =
+    arrayOf(
+        "text/csv",
+        "text/comma-separated-values",
+        "application/csv",
+        "text/plain",
+        "application/vnd.ms-excel",
+        "application/x-excel",
+    )
 
 @Serializable
 data object ImportOperations
