@@ -83,6 +83,10 @@ something is missing (e.g. there are no tests), that's noted explicitly rather t
   rememberViewModelStoreOwner())` where it's shown (see `HomeScreen` / `CategoriesSetting`).
 - There is **no aggregated `UiState` data class** — each piece of state is its own property. Follow
   this per-property style rather than introducing a combined state object.
+- A `Flow` from a repository is converted to a `StateFlow` in the ViewModel with
+  `.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), <initial>)` and exposed as-is
+  as a public `val x: StateFlow<T>` (no `_x` backing field, no `init { collect { } }` into a
+  `mutableStateOf`). The screen reads it with `val x by viewModel.x.collectAsStateWithLifecycle()`.
 
 ## Compose UI
 
@@ -121,6 +125,9 @@ something is missing (e.g. there are no tests), that's noted explicitly rather t
 - Commit subjects follow a lightweight Conventional-Commits style: `feat: ...`, `fix: ...`,
   `refactor: ...`, `chore: ...`, short and imperative (2-6 words), no scopes, no body text (e.g.
   `feat: delete storage element`, `fix: changing level 1 remove level 2`).
+- Commits made by Claude **always** end with a `Co-Authored-By:` trailer for the Claude model
+  (e.g. `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`), after a blank line. This
+  trailer is the only exception to "no body text".
 - `refactor:` is for code changes that don't change behavior (e.g. restructuring state); `chore:`
   is only for tooling, config and build housekeeping.
 - No `.github/` CI workflows, no CONTRIBUTING.md, no CODEOWNERS.

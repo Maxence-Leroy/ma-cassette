@@ -12,6 +12,9 @@ import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.operation.OperationState
 import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 
@@ -22,8 +25,10 @@ class AddOperationViewModel(
 
     val currency = Preferences.getCurrency(application)
 
-    private val _categories = mutableStateOf<List<Category>>(emptyList())
-    val categories: State<List<Category>> = _categories
+    val categories: StateFlow<List<Category>> =
+        operationRepository
+            .getCategories()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     private val _date = mutableStateOf(LocalDate.now())
     val date: State<LocalDate> = _date
@@ -45,12 +50,6 @@ class AddOperationViewModel(
 
     val canSave: State<Boolean> =
         derivedStateOf { _category.value != null && _name.value.isNotBlank() && parsedAmount() != null }
-
-    init {
-        viewModelScope.launch {
-            operationRepository.getCategories().collect { _categories.value = it }
-        }
-    }
 
     fun setDate(date: LocalDate) {
         _date.value = date

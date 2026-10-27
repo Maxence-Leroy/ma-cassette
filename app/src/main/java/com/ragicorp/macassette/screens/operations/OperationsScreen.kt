@@ -17,6 +17,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.operations.views.OperationCard
@@ -27,7 +28,7 @@ fun OperationsScreen(
     modifier: Modifier = Modifier,
     viewModel: OperationsViewModel = viewModel(),
 ) {
-    val operations by viewModel.operations
+    val operations by viewModel.operations.collectAsStateWithLifecycle()
     val operationsByDate = remember(operations) { operations.groupBy { it.date } }
 
     if (operations.isEmpty()) {

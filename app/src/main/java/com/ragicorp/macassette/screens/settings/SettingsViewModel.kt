@@ -8,6 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.utils.Preferences
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
@@ -18,14 +21,10 @@ class SettingsViewModel(
     private val _currency = mutableStateOf(Preferences.getCurrency(application))
     val currency: State<String> = _currency
 
-    private val _categories = mutableStateOf<List<Category>>(emptyList())
-    val categories: State<List<Category>> = _categories
-
-    init {
-        viewModelScope.launch {
-            operationRepository.getCategories().collect { _categories.value = it }
-        }
-    }
+    val categories: StateFlow<List<Category>> =
+        operationRepository
+            .getCategories()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun deleteCategory(category: Category) {
         viewModelScope.launch { operationRepository.deleteCategory(category) }

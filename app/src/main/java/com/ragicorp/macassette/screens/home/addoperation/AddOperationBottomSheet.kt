@@ -51,6 +51,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
@@ -69,7 +70,7 @@ fun AddOperationBottomSheet(
     modifier: Modifier = Modifier,
     viewModel: AddOperationViewModel = viewModel(),
 ) {
-    val categories by viewModel.categories
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
     val date by viewModel.date
     val category by viewModel.category
     val name by viewModel.name

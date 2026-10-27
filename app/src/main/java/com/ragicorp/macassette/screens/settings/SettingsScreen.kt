@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.settings.views.CategoriesSetting
@@ -32,7 +33,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(),
 ) {
     val currency by viewModel.currency
-    val categories by viewModel.categories
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
