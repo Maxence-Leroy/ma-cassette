@@ -108,7 +108,7 @@ fun OperationsScreen(
                                         awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
                                         pressedOperationId = operation.id
                                     }
-                                }.then(if (index > 0) Modifier.overlapPreviousBorder(cardBorder) else Modifier)
+                                }.run { if (index > 0) overlapPreviousBorder(cardBorder) else this }
                                 .padding(horizontal = dimensionResource(R.dimen.double_space)),
                     )
                 }
