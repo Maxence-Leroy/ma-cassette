@@ -13,11 +13,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface OperationDao {
-    suspend fun getOperations(): List<Operation> = getOperationsWithCategory().map { it.toOperation() }
-
     @Transaction
-    @Query("SELECT * FROM Operation")
-    suspend fun getOperationsWithCategory(): List<OperationWithCategory>
+    @Query("SELECT * FROM Operation ORDER BY date DESC, id DESC")
+    fun getOperations(): Flow<List<OperationWithCategory>>
 
     @Insert
     suspend fun insertOperation(operation: OperationEntity)

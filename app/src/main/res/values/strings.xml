@@ -12,6 +12,9 @@
     <string name="addOperation_amount">Montant</string>
     <string name="addOperation_notes">Notes</string>
     <string name="addOperation_save">Enregistrer</string>
+    <string name="operations_empty">Aucune opération</string>
+    <string name="operations_noCategory">Sans catégorie</string>
+    <string name="operations_amount">%1$s\u202F%2$s</string>
     <string name="importOperations_title">Importer un relevé d’opérations</string>
     <string name="settings_title">Paramètres</string>
     <string name="settings_currency">Symbole monétaire</string>

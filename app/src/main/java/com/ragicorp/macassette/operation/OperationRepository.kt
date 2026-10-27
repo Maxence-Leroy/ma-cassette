@@ -11,7 +11,7 @@ class OperationRepository(
 ) {
     private val operationDao = OperationDatabase.getInstance(context).operationDao()
 
-    suspend fun getOperations(): List<Operation> = operationDao.getOperations()
+    fun getOperations(): Flow<List<Operation>> = operationDao.getOperations().map { operations -> operations.map { it.toOperation() } }
 
     suspend fun insertOperation(operation: Operation) = operationDao.insertOperation(operation.toEntity())
 
