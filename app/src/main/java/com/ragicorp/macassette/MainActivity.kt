@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ragicorp.macassette.screens.createparser.CreateParser
+import com.ragicorp.macassette.screens.createparser.CreateParserScreen
 import com.ragicorp.macassette.screens.home.Home
 import com.ragicorp.macassette.screens.home.HomeScreen
 import com.ragicorp.macassette.screens.importoperations.ImportOperations
@@ -30,7 +32,13 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable<ImportOperations> {
-                        ImportOperationsScreen(onBack = { navController.popBackStack() })
+                        ImportOperationsScreen(
+                            onBack = { navController.popBackStack() },
+                            onCreateParserClick = { navController.navigate(CreateParser) },
+                        )
+                    }
+                    composable<CreateParser> {
+                        CreateParserScreen(onBack = { navController.popBackStack() })
                     }
                     composable<Settings> {
                         SettingsScreen(onBack = { navController.popBackStack() })

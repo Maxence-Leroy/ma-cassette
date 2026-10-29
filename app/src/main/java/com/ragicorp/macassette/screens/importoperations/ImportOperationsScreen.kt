@@ -46,6 +46,7 @@ data object ImportOperations
 @Composable
 fun ImportOperationsScreen(
     onBack: () -> Unit,
+    onCreateParserClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ImportOperationsViewModel = viewModel(),
 ) {
@@ -102,6 +103,8 @@ fun ImportOperationsScreen(
                     onParserSelect = viewModel::setParser,
                     // availableParsers is null while the file is still being read, so only flag an error once it's known
                     isError = availableParsers?.isEmpty() == true,
+                    onCreateParserClick = onCreateParserClick,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
