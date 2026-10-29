@@ -22,6 +22,9 @@ class SettingsViewModel(
     private val _currency = mutableStateOf(Preferences.getCurrency(application))
     val currency: State<String> = _currency
 
+    private val _statementUrl = mutableStateOf(Preferences.getStatementUrl(application))
+    val statementUrl: State<String> = _statementUrl
+
     val categories: StateFlow<List<Category>> =
         operationRepository
             .getCategories()
@@ -43,5 +46,10 @@ class SettingsViewModel(
     fun setCurrency(currency: String) {
         Preferences.setCurrency(getApplication(), currency)
         _currency.value = Preferences.getCurrency(getApplication())
+    }
+
+    fun setStatementUrl(statementUrl: String) {
+        Preferences.setStatementUrl(getApplication(), statementUrl)
+        _statementUrl.value = Preferences.getStatementUrl(getApplication())
     }
 }

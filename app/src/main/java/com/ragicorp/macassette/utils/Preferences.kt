@@ -7,6 +7,7 @@ import androidx.core.content.edit
 private const val PREFERENCES_NAME = "preferences"
 private const val CURRENCY_KEY = "currency"
 private const val DEFAULT_CURRENCY = "€"
+private const val STATEMENT_URL_KEY = "statement_url"
 
 object Preferences {
     private fun get(context: Context): SharedPreferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
@@ -19,6 +20,17 @@ object Preferences {
     ) {
         get(context).edit {
             if (currency.isBlank()) remove(CURRENCY_KEY) else putString(CURRENCY_KEY, currency)
+        }
+    }
+
+    fun getStatementUrl(context: Context): String = get(context).getString(STATEMENT_URL_KEY, "") ?: ""
+
+    fun setStatementUrl(
+        context: Context,
+        statementUrl: String,
+    ) {
+        get(context).edit {
+            if (statementUrl.isBlank()) remove(STATEMENT_URL_KEY) else putString(STATEMENT_URL_KEY, statementUrl.trim())
         }
     }
 }

@@ -20,6 +20,7 @@ import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.settings.views.CategoriesSetting
 import com.ragicorp.macassette.screens.settings.views.CurrencySetting
 import com.ragicorp.macassette.screens.settings.views.ParsersSetting
+import com.ragicorp.macassette.screens.settings.views.StatementUrlSetting
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
 
@@ -34,6 +35,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = viewModel(),
 ) {
     val currency by viewModel.currency
+    val statementUrl by viewModel.statementUrl
     val categories by viewModel.categories.collectAsStateWithLifecycle()
     val parsers by viewModel.parsers.collectAsStateWithLifecycle()
 
@@ -60,6 +62,10 @@ fun SettingsScreen(
             CurrencySetting(
                 currency = currency,
                 onCurrencyChange = viewModel::setCurrency,
+            )
+            StatementUrlSetting(
+                statementUrl = statementUrl,
+                onStatementUrlChange = viewModel::setStatementUrl,
             )
             CategoriesSetting(
                 categories = categories,
