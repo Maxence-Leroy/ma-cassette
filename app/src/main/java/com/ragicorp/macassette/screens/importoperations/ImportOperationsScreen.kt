@@ -46,13 +46,14 @@ data object ImportOperations
 @Composable
 fun ImportOperationsScreen(
     onBack: () -> Unit,
-    onCreateParserClick: () -> Unit,
+    onCreateParserClick: (columns: List<String>) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: ImportOperationsViewModel = viewModel(),
 ) {
     val fileName by viewModel.fileName
     val availableParsers by viewModel.availableParsers.collectAsStateWithLifecycle()
     val parser by viewModel.parser
+    val columns by viewModel.columns
     // The system picker grants access to the chosen file, so no storage permission is needed
     val filePicker =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -103,7 +104,8 @@ fun ImportOperationsScreen(
                     onParserSelect = viewModel::setParser,
                     // availableParsers is null while the file is still being read, so only flag an error once it's known
                     isError = availableParsers?.isEmpty() == true,
-                    onCreateParserClick = onCreateParserClick,
+                    // Columns are null while the file is still being read, there's nothing to build a parser from yet
+                    onCreateParserClick = { columns?.let(onCreateParserClick) },
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

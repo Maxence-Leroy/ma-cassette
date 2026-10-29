@@ -24,6 +24,10 @@
     <string name="importOperations_parser">Profil bancaire</string>
     <string name="importOperations_noParser">Aucun profil bancaire disponible, veuillez en créer un nouveau</string>
     <string name="createParser_title">Créer un profil bancaire</string>
+    <string name="createParser_name">Nom</string>
+    <string name="createParser_dateLabel">Colonne de la date</string>
+    <string name="createParser_nameLabel">Colonne du libellé</string>
+    <string name="createParser_amountLabel">Colonne du montant</string>
     <string name="importOperations_notCsv">Le fichier sélectionné n’est pas un fichier CSV</string>
     <string name="settings_title">Paramètres</string>
     <string name="settings_currency">Symbole monétaire</string>
