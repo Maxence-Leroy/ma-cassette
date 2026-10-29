@@ -1,5 +1,6 @@
 package com.ragicorp.macassette.screens.operations.views
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -30,8 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
@@ -47,12 +51,17 @@ fun OperationCard(
     currency: String,
     isSwiped: Boolean,
     onSwipedChange: (Boolean) -> Unit,
+    isSelectionMode: Boolean,
+    isSelected: Boolean,
+    onSelectedChange: () -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val swipeState = remember { AnchoredDraggableState(OperationCardSwipe.Closed) }
     val currentOnSwipedChange by rememberUpdatedState(onSwipedChange)
+    val currentOnSelectedChange by rememberUpdatedState(onSelectedChange)
+    val hapticFeedback = LocalHapticFeedback.current
 
     LaunchedEffect(swipeState) {
         snapshotFlow { swipeState.settledValue }.collect { currentOnSwipedChange(it == OperationCardSwipe.Open) }
@@ -102,13 +111,22 @@ fun OperationCard(
             operation = operation,
             amount = amount,
             currency = currency,
+            isSelected = isSelected,
             modifier =
                 Modifier
                     // Offset is NaN until the actions have been measured and the anchors set
                     .offset { IntOffset(swipeState.offset.takeIf { !it.isNaN() }?.roundToInt() ?: 0, 0) }
-                    .anchoredDraggable(swipeState, Orientation.Horizontal)
-                    .pointerInput(isSwiped) {
-                        if (isSwiped) detectTapGestures { onSwipedChange(false) }
+                    .anchoredDraggable(swipeState, Orientation.Horizontal, enabled = !isSelectionMode)
+                    .pointerInput(isSwiped, isSelectionMode) {
+                        when {
+                            isSwiped -> detectTapGestures { onSwipedChange(false) }
+                            isSelectionMode -> detectTapGestures { currentOnSelectedChange() }
+                            else ->
+                                detectTapGestures(onLongPress = {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    currentOnSelectedChange()
+                                })
+                        }
                     },
         )
     }
@@ -119,9 +137,24 @@ private fun OperationCardContent(
     operation: Operation,
     amount: String,
     currency: String,
+    isSelected: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    OutlinedCard(modifier = modifier.fillMaxWidth()) {
+    OutlinedCard(
+        modifier = modifier.fillMaxWidth(),
+        colors =
+            if (isSelected) {
+                CardDefaults.outlinedCardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+            } else {
+                CardDefaults.outlinedCardColors()
+            },
+        border =
+            if (isSelected) {
+                BorderStroke(dimensionResource(R.dimen.card_border), MaterialTheme.colorScheme.primary)
+            } else {
+                CardDefaults.outlinedCardBorder()
+            },
+    ) {
         Row(
             modifier =
                 Modifier.padding(

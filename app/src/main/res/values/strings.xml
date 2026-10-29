@@ -4,6 +4,11 @@
     <string name="home_budgetTitle">Enveloppes</string>
     <string name="home_distributionTitle">Répartition</string>
     <string name="home_addOperation">Ajouter une opération</string>
+    <plurals name="home_selectedOperations">
+        <item quantity="one">%d sélectionnée</item>
+        <item quantity="many">%d sélectionnées</item>
+        <item quantity="other">%d sélectionnées</item>
+    </plurals>
     <string name="operationForm_date">Date</string>
     <string name="operationForm_category">Catégorie</string>
     <string name="operationForm_name">Nom</string>
@@ -16,8 +21,17 @@
     <string name="operations_empty">Aucune opération</string>
     <string name="operations_noCategory">Sans catégorie</string>
     <string name="operations_amount">%1$s\u202F%2$s</string>
-    <string name="operations_deleteOperationTitle">Supprimer l’opération ?</string>
+    <plurals name="operations_deleteOperationTitle">
+        <item quantity="one">Supprimer l’opération ?</item>
+        <item quantity="many">Supprimer les opérations ?</item>
+        <item quantity="other">Supprimer les opérations ?</item>
+    </plurals>
     <string name="operations_deleteOperationMessage">\"%1$s\" sera supprimée.</string>
+    <plurals name="operations_deleteOperationsMessage">
+        <item quantity="one">%d opération sera supprimée.</item>
+        <item quantity="many">%d opérations seront supprimées.</item>
+        <item quantity="other">%d opérations seront supprimées.</item>
+    </plurals>
     <string name="operations_deleteOperationConfirm">Supprimer</string>
     <string name="importOperations_title">Importer un relevé d’opérations</string>
     <string name="importOperations_selectFile">Choisir un fichier CSV</string>

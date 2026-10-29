@@ -5,6 +5,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Operation
@@ -12,7 +13,7 @@ import dev.vicart.compose.material.symbols.MaterialSymbol
 
 @Composable
 fun DeleteOperationDialog(
-    operation: Operation,
+    operations: List<Operation>,
     onConfirm: () -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -31,7 +32,12 @@ fun DeleteOperationDialog(
             }
         },
         icon = { MaterialSymbol.Filled("delete") },
-        title = { Text(stringResource(R.string.operations_deleteOperationTitle)) },
-        text = { Text(stringResource(R.string.operations_deleteOperationMessage, operation.label)) },
+        title = { Text(pluralStringResource(R.plurals.operations_deleteOperationTitle, operations.size)) },
+        text = {
+            Text(
+                operations.singleOrNull()?.let { stringResource(R.string.operations_deleteOperationMessage, it.label) }
+                    ?: pluralStringResource(R.plurals.operations_deleteOperationsMessage, operations.size, operations.size),
+            )
+        },
     )
 }

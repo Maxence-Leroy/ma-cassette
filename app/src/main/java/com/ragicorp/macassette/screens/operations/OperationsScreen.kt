@@ -48,6 +48,7 @@ fun OperationsScreen(
     viewModel: OperationsViewModel = viewModel(),
 ) {
     val operations by viewModel.operations.collectAsStateWithLifecycle()
+    val selectedOperationIds by viewModel.selectedOperationIds
     val operationsByDate = remember(operations) { operations.groupBy { it.date } }
     val listState = rememberLazyListState()
     var swipedOperationId by remember { mutableStateOf<Long?>(null) }
@@ -107,6 +108,12 @@ fun OperationsScreen(
                                 swipedOperationId = null
                             }
                         },
+                        isSelectionMode = selectedOperationIds.isNotEmpty(),
+                        isSelected = operation.id in selectedOperationIds,
+                        onSelectedChange = {
+                            swipedOperationId = null
+                            viewModel.toggleOperationSelection(operation)
+                        },
                         onEditClick = { operationIdToEdit = operation.id },
                         onDeleteClick = { operationIdToDelete = operation.id },
                         modifier =
@@ -136,7 +143,7 @@ fun OperationsScreen(
 
     operations.find { it.id == operationIdToDelete }?.let { operation ->
         DeleteOperationDialog(
-            operation = operation,
+            operations = listOf(operation),
             onConfirm = {
                 viewModel.deleteOperation(operation)
                 operationIdToDelete = null

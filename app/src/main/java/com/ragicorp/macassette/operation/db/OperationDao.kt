@@ -38,6 +38,9 @@ interface OperationDao {
     @Delete
     suspend fun deleteOperation(operation: OperationEntity)
 
+    @Delete
+    suspend fun deleteOperations(operations: List<OperationEntity>)
+
     @Query("SELECT * FROM Category ORDER BY CASE type WHEN 'Expense' THEN 0 WHEN 'Earning' THEN 1 ELSE 2 END, color, name COLLATE NOCASE")
     fun getCategories(): Flow<List<CategoryEntity>>
 
