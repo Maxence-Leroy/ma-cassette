@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.settings.views.CategoriesSetting
 import com.ragicorp.macassette.screens.settings.views.CurrencySetting
+import com.ragicorp.macassette.screens.settings.views.ParsersSetting
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
 
@@ -34,6 +35,7 @@ fun SettingsScreen(
 ) {
     val currency by viewModel.currency
     val categories by viewModel.categories.collectAsStateWithLifecycle()
+    val parsers by viewModel.parsers.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -63,6 +65,10 @@ fun SettingsScreen(
                 categories = categories,
                 currency = currency,
                 onDeleteCategory = viewModel::deleteCategory,
+            )
+            ParsersSetting(
+                parsers = parsers,
+                onDeleteParser = viewModel::deleteParser,
             )
         }
     }

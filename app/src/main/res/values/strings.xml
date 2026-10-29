@@ -42,6 +42,16 @@
     <string name="settings_deleteCategoryMessage">\"%1$s\" sera supprimée. Les opérations associées n’auront plus de catégorie.</string>
     <string name="settings_deleteCategoryConfirm">Supprimer</string>
     <string name="settings_categoriesSummary">%1$s, %2$s, %3$s</string>
+    <string name="settings_parsers">Profils bancaires</string>
+    <string name="settings_parserColumns">%1$s · %2$s · %3$s</string>
+    <string name="settings_deleteParserTitle">Supprimer le profil bancaire ?</string>
+    <string name="settings_deleteParserMessage">\"%1$s\" sera supprimé.</string>
+    <string name="settings_deleteParserConfirm">Supprimer</string>
+    <plurals name="settings_parserCount">
+        <item quantity="one">%d profil</item>
+        <item quantity="many">%d profils</item>
+        <item quantity="other">%d profils</item>
+    </plurals>
     <plurals name="settings_expenseCount">
         <item quantity="one">%d dépense</item>
         <item quantity="many">%d dépenses</item>

@@ -43,6 +43,9 @@ interface OperationDao {
 
     @Insert
     suspend fun insertParser(parser: ParserEntity)
+
+    @Delete
+    suspend fun deleteParser(parser: ParserEntity)
 }
 
 data class OperationWithCategory(

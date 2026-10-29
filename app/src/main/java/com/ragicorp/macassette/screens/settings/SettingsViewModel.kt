@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.OperationRepository
+import com.ragicorp.macassette.operation.Parser
 import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -26,8 +27,17 @@ class SettingsViewModel(
             .getCategories()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    val parsers: StateFlow<List<Parser>> =
+        operationRepository
+            .getParsers()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     fun deleteCategory(category: Category) {
         viewModelScope.launch { operationRepository.deleteCategory(category) }
+    }
+
+    fun deleteParser(parser: Parser) {
+        viewModelScope.launch { operationRepository.deleteParser(parser) }
     }
 
     fun setCurrency(currency: String) {
