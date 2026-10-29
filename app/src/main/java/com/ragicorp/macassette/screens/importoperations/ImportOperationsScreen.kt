@@ -132,7 +132,7 @@ private fun ParserDropdown(
         onExpandedChange = { expanded = it },
     ) {
         OutlinedTextField(
-            value = selectedParser?.let { parserLabel(it) }.orEmpty(),
+            value = selectedParser?.name.orEmpty(),
             onValueChange = {},
             modifier =
                 Modifier
@@ -151,7 +151,7 @@ private fun ParserDropdown(
         ) {
             parsers.forEach {
                 DropdownMenuItem(
-                    text = { Text(parserLabel(it)) },
+                    text = { Text(it.name) },
                     onClick = {
                         onParserSelect(it)
                         expanded = false
@@ -161,7 +161,3 @@ private fun ParserDropdown(
         }
     }
 }
-
-@Composable
-private fun parserLabel(parser: Parser) =
-    stringResource(R.string.importOperations_parserLabel, parser.dateLabel, parser.nameLabel, parser.amountLabel)

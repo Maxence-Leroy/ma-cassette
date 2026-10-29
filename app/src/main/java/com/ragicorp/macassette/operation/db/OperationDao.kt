@@ -38,7 +38,7 @@ interface OperationDao {
     @Delete
     suspend fun deleteCategory(category: CategoryEntity)
 
-    @Query("SELECT * FROM Parser ORDER BY id")
+    @Query("SELECT * FROM Parser ORDER BY name COLLATE NOCASE")
     fun getParsers(): Flow<List<ParserEntity>>
 }
 
