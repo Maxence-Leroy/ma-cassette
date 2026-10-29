@@ -28,4 +28,6 @@ class OperationRepository(
     suspend fun deleteCategory(category: Category) = operationDao.deleteCategory(category.toEntity())
 
     fun getParsers(): Flow<List<Parser>> = operationDao.getParsers().map { parsers -> parsers.map { it.toParser() } }
+
+    suspend fun insertParser(parser: Parser) = operationDao.insertParser(parser.toEntity())
 }

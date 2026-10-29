@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -50,6 +52,7 @@ fun CreateParserScreen(
     val dateLabel by viewModel.dateLabel
     val nameLabel by viewModel.nameLabel
     val amountLabel by viewModel.amountLabel
+    val canSave by viewModel.canSave
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -98,6 +101,13 @@ fun CreateParserScreen(
                 selectedColumn = amountLabel,
                 onColumnSelect = viewModel::setAmountLabel,
             )
+            Button(
+                onClick = { viewModel.save(onSaved = onBack) },
+                modifier = Modifier.align(Alignment.End),
+                enabled = canSave,
+            ) {
+                Text(stringResource(R.string.createParser_save))
+            }
         }
     }
 }

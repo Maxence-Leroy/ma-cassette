@@ -40,6 +40,9 @@ interface OperationDao {
 
     @Query("SELECT * FROM Parser ORDER BY name COLLATE NOCASE")
     fun getParsers(): Flow<List<ParserEntity>>
+
+    @Insert
+    suspend fun insertParser(parser: ParserEntity)
 }
 
 data class OperationWithCategory(
