@@ -9,9 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -19,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,6 +57,7 @@ fun ImportOperationsScreen(
     val availableParsers by viewModel.availableParsers.collectAsStateWithLifecycle()
     val parser by viewModel.parser
     val columns by viewModel.columns
+    val uriHandler = LocalUriHandler.current
     // The system picker grants access to the chosen file, so no storage permission is needed
     val filePicker =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -81,6 +85,18 @@ fun ImportOperationsScreen(
                     .fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.double_space)),
         ) {
+            viewModel.statementUrl?.let { url ->
+                OutlinedButton(
+                    onClick = { uriHandler.openUri(url) },
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                ) {
+                    MaterialSymbol.Filled("open_in_new")
+                    Text(
+                        text = stringResource(R.string.importOperations_downloadStatement),
+                        modifier = Modifier.padding(start = dimensionResource(R.dimen.single_space)),
+                    )
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.double_space)),

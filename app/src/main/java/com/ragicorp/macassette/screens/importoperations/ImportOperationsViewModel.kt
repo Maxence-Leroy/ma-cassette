@@ -7,11 +7,13 @@ import android.widget.Toast
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
+import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.operation.Parser
+import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,6 +33,13 @@ class ImportOperationsViewModel(
     application: Application,
 ) : AndroidViewModel(application) {
     private val operationRepository = OperationRepository(application)
+
+    // Null when the URL saved in the settings isn't a web URL a browser can open
+    val statementUrl: String? =
+        Preferences.getStatementUrl(application).takeIf {
+            val uri = it.toUri()
+            uri.scheme in listOf("http", "https") && !uri.host.isNullOrBlank()
+        }
 
     private val _fileUri = mutableStateOf<Uri?>(null)
     val fileUri: State<Uri?> = _fileUri
