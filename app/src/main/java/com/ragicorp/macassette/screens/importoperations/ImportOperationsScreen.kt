@@ -3,25 +3,37 @@ package com.ragicorp.macassette.screens.importoperations
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenu
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.operation.Parser
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
 
@@ -47,6 +59,8 @@ fun ImportOperationsScreen(
     viewModel: ImportOperationsViewModel = viewModel(),
 ) {
     val fileName by viewModel.fileName
+    val availableParsers by viewModel.availableParsers.collectAsStateWithLifecycle()
+    val parser by viewModel.parser
     // The system picker grants access to the chosen file, so no storage permission is needed
     val filePicker =
         rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -66,25 +80,88 @@ fun ImportOperationsScreen(
             )
         },
     ) { paddingValues ->
-        Row(
+        Column(
             modifier =
                 Modifier
                     .padding(paddingValues)
                     .padding(dimensionResource(R.dimen.double_space))
                     .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.double_space)),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.double_space)),
         ) {
-            fileName?.let {
-                Text(
-                    text = it,
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.double_space)),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                fileName?.let {
+                    Text(
+                        text = it,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                Button(onClick = { filePicker.launch(CSV_MIME_TYPES) }) {
+                    Text(stringResource(R.string.importOperations_selectFile))
+                }
             }
-            Button(onClick = { filePicker.launch(CSV_MIME_TYPES) }) {
-                Text(stringResource(R.string.importOperations_selectFile))
+            if (fileName != null) {
+                ParserDropdown(
+                    parsers = availableParsers.orEmpty(),
+                    selectedParser = parser,
+                    onParserSelect = viewModel::setParser,
+                    // availableParsers is null while the file is still being read, so only flag an error once it's known
+                    isError = availableParsers?.isEmpty() == true,
+                )
             }
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ParserDropdown(
+    parsers: List<Parser>,
+    selectedParser: Parser?,
+    onParserSelect: (Parser) -> Unit,
+    isError: Boolean,
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it },
+    ) {
+        OutlinedTextField(
+            value = selectedParser?.let { parserLabel(it) }.orEmpty(),
+            onValueChange = {},
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+            readOnly = true,
+            label = { Text(stringResource(R.string.importOperations_parser)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            supportingText = if (isError) ({ Text(stringResource(R.string.importOperations_noParser)) }) else null,
+            isError = isError,
+            singleLine = true,
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            parsers.forEach {
+                DropdownMenuItem(
+                    text = { Text(parserLabel(it)) },
+                    onClick = {
+                        onParserSelect(it)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun parserLabel(parser: Parser) =
+    stringResource(R.string.importOperations_parserLabel, parser.dateLabel, parser.nameLabel, parser.amountLabel)
