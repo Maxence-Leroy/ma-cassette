@@ -9,7 +9,9 @@ import androidx.room.Relation
 import androidx.room.Transaction
 import androidx.room.Update
 import com.ragicorp.macassette.operation.Operation
+import com.ragicorp.macassette.operation.OperationState
 import kotlinx.coroutines.flow.Flow
+import org.threeten.bp.LocalDate
 
 @Dao
 interface OperationDao {
@@ -17,8 +19,18 @@ interface OperationDao {
     @Query("SELECT * FROM Operation ORDER BY date DESC, id DESC")
     fun getOperations(): Flow<List<OperationWithCategory>>
 
+    @Transaction
+    @Query("SELECT * FROM Operation WHERE date IN (:dates) AND state IN (:states)")
+    suspend fun getOperations(
+        dates: List<LocalDate>,
+        states: List<OperationState>,
+    ): List<OperationWithCategory>
+
     @Insert
     suspend fun insertOperation(operation: OperationEntity)
+
+    @Insert
+    suspend fun insertOperations(operations: List<OperationEntity>)
 
     @Update
     suspend fun updateOperation(operation: OperationEntity)

@@ -11,7 +11,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.operation.Operation
 import com.ragicorp.macassette.operation.OperationRepository
+import com.ragicorp.macassette.operation.OperationState
 import com.ragicorp.macassette.operation.Parser
 import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.Dispatchers
@@ -22,12 +24,17 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.threeten.bp.LocalDate
+import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.format.DateTimeParseException
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 
 private val CSV_DELIMITERS = listOf(';', ',', '\t')
+private val CSV_DATE_FORMATTERS =
+    listOf("d/M/yyyy", "yyyy-M-d", "d-M-yyyy", "d.M.yyyy").map(DateTimeFormatter::ofPattern)
 
 class ImportOperationsViewModel(
     application: Application,
@@ -54,6 +61,9 @@ class ImportOperationsViewModel(
 
     private val _parser = mutableStateOf<Parser?>(null)
     val parser: State<Parser?> = _parser
+
+    private val _isImporting = mutableStateOf(false)
+    val isImporting: State<Boolean> = _isImporting
 
     // Parsers whose three labels are all columns of the selected file, null until both are known
     val availableParsers: StateFlow<List<Parser>?> =
@@ -89,6 +99,67 @@ class ImportOperationsViewModel(
         _parser.value = parser
     }
 
+    fun import(onImported: () -> Unit) {
+        val uri = _fileUri.value ?: return
+        val parser = _parser.value ?: return
+        // A second import running before the first one is saved would see none of its operations and save them twice
+        if (_isImporting.value) return
+        _isImporting.value = true
+        val context = getApplication<Application>()
+        viewModelScope.launch {
+            try {
+                val operations = withContext(Dispatchers.IO) { readOperations(uri, parser) }
+                val importedCount = operationRepository.importOperations(operations)
+                val message = context.resources.getQuantityString(R.plurals.importOperations_importedCount, importedCount, importedCount)
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                onImported()
+            } finally {
+                _isImporting.value = false
+            }
+        }
+    }
+
+    // Lines whose date or amount can't be read (e.g. a footer with totals) are skipped
+    private fun readOperations(
+        uri: Uri,
+        parser: Parser,
+    ): List<Operation> {
+        val bytes =
+            try {
+                getApplication<Application>().contentResolver.openInputStream(uri)?.use { it.readBytes() }
+            } catch (e: IOException) {
+                null
+            } ?: return emptyList()
+        val lines =
+            decode(bytes)
+                .removePrefix("﻿")
+                .lines()
+                .map { it.trimEnd('\r') }
+                .filter { it.isNotBlank() }
+        val header = lines.firstOrNull() ?: return emptyList()
+        val delimiter = findDelimiter(header)
+        val columns = splitLine(header, delimiter)
+        val dateIndex = columns.indexOf(parser.dateLabel)
+        val nameIndex = columns.indexOf(parser.nameLabel)
+        val amountIndex = columns.indexOf(parser.amountLabel)
+        if (dateIndex == -1 || nameIndex == -1 || amountIndex == -1) return emptyList()
+        return lines.drop(1).mapNotNull { line ->
+            val fields = splitLine(line, delimiter)
+            val date = fields.getOrNull(dateIndex)?.let(::parseDate) ?: return@mapNotNull null
+            val amount = fields.getOrNull(amountIndex)?.let(::parseAmount) ?: return@mapNotNull null
+            Operation(
+                id = 0,
+                category = null,
+                date = date,
+                amount = amount,
+                label = fields.getOrNull(nameIndex).orEmpty(),
+                notes = "",
+                isWaitingForAction = false,
+                state = OperationState.AutoImported,
+            )
+        }
+    }
+
     private fun readColumns(uri: Uri): List<String> {
         val headerBytes =
             try {
@@ -104,8 +175,57 @@ class ImportOperationsViewModel(
                 null
             } ?: return emptyList()
         val header = decode(headerBytes).removePrefix("\uFEFF").trimEnd('\r')
-        val delimiter = CSV_DELIMITERS.maxBy { delimiter -> header.count { it == delimiter } }
-        return header.split(delimiter).map { it.trim().removeSurrounding("\"") }
+        return splitLine(header, findDelimiter(header))
+    }
+
+    private fun findDelimiter(header: String) = CSV_DELIMITERS.maxBy { delimiter -> header.count { it == delimiter } }
+
+    // Quoted fields may contain the delimiter, and "" inside quotes is an escaped quote
+    private fun splitLine(
+        line: String,
+        delimiter: Char,
+    ): List<String> {
+        val fields = mutableListOf<String>()
+        val field = StringBuilder()
+        var inQuotes = false
+        var index = 0
+        while (index < line.length) {
+            val char = line[index]
+            when {
+                char == '"' && inQuotes && line.getOrNull(index + 1) == '"' -> {
+                    field.append('"')
+                    index++
+                }
+                char == '"' -> inQuotes = !inQuotes
+                char == delimiter && !inQuotes -> {
+                    fields.add(field.toString().trim())
+                    field.clear()
+                }
+                else -> field.append(char)
+            }
+            index++
+        }
+        fields.add(field.toString().trim())
+        return fields
+    }
+
+    private fun parseDate(value: String): LocalDate? =
+        CSV_DATE_FORMATTERS.firstNotNullOfOrNull { formatter ->
+            try {
+                LocalDate.parse(value, formatter)
+            } catch (e: DateTimeParseException) {
+                null
+            }
+        }
+
+    // French exports use ',' as decimal separator and spaces as thousands separator (e.g. "-1 234,56")
+    private fun parseAmount(value: String): Double? {
+        val amount = value.filterNot { it.isWhitespace() || it == '\u00A0' || it == '\u202F' || it == '+' }
+        return if (',' in amount) {
+            amount.replace(".", "").replace(',', '.').toDoubleOrNull()
+        } else {
+            amount.toDoubleOrNull()
+        }
     }
 
     // Bank exports are often Windows-1252 rather than UTF-8, which would garble accented column names

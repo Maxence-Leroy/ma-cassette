@@ -57,6 +57,7 @@ fun ImportOperationsScreen(
     val availableParsers by viewModel.availableParsers.collectAsStateWithLifecycle()
     val parser by viewModel.parser
     val columns by viewModel.columns
+    val isImporting by viewModel.isImporting
     val uriHandler = LocalUriHandler.current
     // The system picker grants access to the chosen file, so no storage permission is needed
     val filePicker =
@@ -126,9 +127,9 @@ fun ImportOperationsScreen(
                 )
             }
             Button(
-                onClick = {},
+                onClick = { viewModel.import(onImported = onBack) },
                 modifier = Modifier.align(Alignment.End),
-                enabled = fileName != null && parser != null,
+                enabled = fileName != null && parser != null && !isImporting,
             ) {
                 Text(stringResource(R.string.importOperations_import))
             }

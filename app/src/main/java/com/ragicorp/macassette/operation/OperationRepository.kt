@@ -15,6 +15,27 @@ class OperationRepository(
 
     suspend fun insertOperation(operation: Operation) = operationDao.insertOperation(operation.toEntity())
 
+    // Saves the operations of a statement that weren't already imported, and returns how many were saved
+    suspend fun importOperations(operations: List<Operation>): Int {
+        val unmatchedSavedOperations =
+            operationDao
+                .getOperations(
+                    dates = operations.map { it.date }.distinct(),
+                    states = listOf(OperationState.AutoImported, OperationState.Merged),
+                ).map { it.toOperation() }
+                .toMutableList()
+        // An operation already saved at the same date with the same label and amount was imported by a previous
+        // statement. Each one only accounts for a single line, so identical operations on the same day are all kept.
+        val newOperations =
+            operations.filterNot { operation ->
+                unmatchedSavedOperations
+                    .firstOrNull { it.date == operation.date && it.label == operation.label && it.amount == operation.amount }
+                    ?.let { unmatchedSavedOperations.remove(it) } == true
+            }
+        operationDao.insertOperations(newOperations.map { it.toEntity() })
+        return newOperations.size
+    }
+
     suspend fun updateOperation(operation: Operation) = operationDao.updateOperation(operation.toEntity())
 
     suspend fun deleteOperation(operation: Operation) = operationDao.deleteOperation(operation.toEntity())
