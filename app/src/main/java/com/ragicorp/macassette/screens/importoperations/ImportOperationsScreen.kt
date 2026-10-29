@@ -125,6 +125,13 @@ fun ImportOperationsScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
+            Button(
+                onClick = {},
+                modifier = Modifier.align(Alignment.End),
+                enabled = fileName != null && parser != null,
+            ) {
+                Text(stringResource(R.string.importOperations_import))
+            }
         }
     }
 }

@@ -22,6 +22,7 @@
     <string name="importOperations_title">Importer un relevé d’opérations</string>
     <string name="importOperations_selectFile">Choisir un fichier CSV</string>
     <string name="importOperations_downloadStatement">Télécharger un relevé</string>
+    <string name="importOperations_import">Importer</string>
     <string name="importOperations_parser">Profil bancaire</string>
     <string name="importOperations_noParser">Aucun profil bancaire disponible, veuillez en créer un nouveau</string>
     <string name="createParser_title">Créer un profil bancaire</string>
