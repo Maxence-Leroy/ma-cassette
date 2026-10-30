@@ -41,11 +41,17 @@ interface OperationDao {
     @Delete
     suspend fun deleteOperation(operation: OperationEntity)
 
-    @Delete
-    suspend fun deleteOperations(operations: List<OperationEntity>)
+    @Query("DELETE FROM Operation WHERE id IN (:ids)")
+    suspend fun deleteOperations(ids: Set<Long>)
 
     @Query("SELECT * FROM Category ORDER BY CASE type WHEN 'Expense' THEN 0 WHEN 'Earning' THEN 1 ELSE 2 END, color, name COLLATE NOCASE")
     fun getCategories(): Flow<List<CategoryEntity>>
+
+    @Query(
+        "SELECT * FROM Category WHERE budget IS NOT NULL " +
+            "ORDER BY CASE type WHEN 'Expense' THEN 0 WHEN 'Earning' THEN 1 ELSE 2 END, color, name COLLATE NOCASE",
+    )
+    fun getBudgetCategories(): Flow<List<CategoryEntity>>
 
     @Insert
     suspend fun insertCategory(category: CategoryEntity)

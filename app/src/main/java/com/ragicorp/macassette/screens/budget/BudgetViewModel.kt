@@ -10,7 +10,6 @@ import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.threeten.bp.YearMonth
 
@@ -23,15 +22,13 @@ class BudgetViewModel(
 
     val categories: StateFlow<List<Category>> =
         operationRepository
-            .getCategories()
-            .map { categories -> categories.filter { it.budget != null } }
+            .getBudgetCategories()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    // Month of the first recorded operation, the earliest month that can be selected
+    // Earliest month that can be selected
     val firstMonth: StateFlow<YearMonth?> =
         operationRepository
-            .getFirstOperationDate()
-            .map { date -> date?.let(YearMonth::from) }
+            .getFirstOperationMonth()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     private val _selectedMonth = mutableStateOf(YearMonth.now())

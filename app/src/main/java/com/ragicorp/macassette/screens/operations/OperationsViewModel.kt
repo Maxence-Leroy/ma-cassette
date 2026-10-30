@@ -44,8 +44,8 @@ class OperationsViewModel(
     }
 
     fun deleteSelectedOperations() {
-        val selectedOperations = operations.value.filter { it.id in _selectedOperationIds.value }
+        val selectedOperationIds = _selectedOperationIds.value
         _selectedOperationIds.value = emptySet()
-        viewModelScope.launch { operationRepository.deleteOperations(selectedOperations) }
+        viewModelScope.launch { operationRepository.deleteOperations(selectedOperationIds) }
     }
 }

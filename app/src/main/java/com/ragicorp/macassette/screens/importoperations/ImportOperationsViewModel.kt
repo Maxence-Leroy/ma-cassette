@@ -17,10 +17,12 @@ import com.ragicorp.macassette.operation.OperationState
 import com.ragicorp.macassette.operation.Parser
 import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,13 +67,12 @@ class ImportOperationsViewModel(
     private val _isImporting = mutableStateOf(false)
     val isImporting: State<Boolean> = _isImporting
 
-    // Parsers whose three labels are all columns of the selected file, null until both are known
+    // Parsers matching the selected file's columns, null until they are known
+    @OptIn(ExperimentalCoroutinesApi::class)
     val availableParsers: StateFlow<List<Parser>?> =
-        combine(operationRepository.getParsers(), snapshotFlow { _columns.value }) { parsers, fileColumns ->
-            fileColumns?.let {
-                parsers.filter { parser -> listOf(parser.dateLabel, parser.nameLabel, parser.amountLabel).all { it in fileColumns } }
-            }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+        snapshotFlow { _columns.value }
+            .flatMapLatest { columns -> columns?.let(operationRepository::getParsers) ?: flowOf(null) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
     fun setFile(uri: Uri) {
         val context = getApplication<Application>()
