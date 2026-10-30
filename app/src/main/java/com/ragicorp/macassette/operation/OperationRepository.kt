@@ -6,6 +6,7 @@ import com.ragicorp.macassette.operation.db.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
 
 class OperationRepository(
@@ -13,7 +14,17 @@ class OperationRepository(
 ) {
     private val operationDao = OperationDatabase.getInstance(context).operationDao()
 
-    fun getOperations(): Flow<List<Operation>> = operationDao.getOperations().map { operations -> operations.map { it.toOperation() } }
+    // Operations of any of the categories (all of them when empty) between the dates, each bound being optional
+    fun getOperations(
+        categoryIds: Set<Long>,
+        start: LocalDate?,
+        end: LocalDate?,
+    ): Flow<List<Operation>> =
+        operationDao
+            .getOperations(isCategoryFiltered = categoryIds.isNotEmpty(), categoryIds = categoryIds.toList(), start = start, end = end)
+            .map { operations -> operations.map { it.toOperation() } }
+
+    fun getFirstOperationDate(): Flow<LocalDate?> = operationDao.getFirstOperationDate()
 
     // Month of the first recorded operation, null while there is none
     fun getFirstOperationMonth(): Flow<YearMonth?> = operationDao.getFirstOperationDate().map { date -> date?.let(YearMonth::from) }

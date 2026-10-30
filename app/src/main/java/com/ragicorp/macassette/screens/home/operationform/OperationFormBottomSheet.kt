@@ -194,7 +194,8 @@ fun OperationFormBottomSheet(
                 }
             },
         ) {
-            DatePicker(state = datePickerState)
+            // The dialog is too short for the whole calendar in landscape, so let it scroll above the buttons
+            DatePicker(state = datePickerState, modifier = Modifier.verticalScroll(rememberScrollState()))
         }
     }
 }

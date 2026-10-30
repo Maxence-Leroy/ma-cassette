@@ -23,6 +23,16 @@
     <string name="operationForm_editTitle">Modifier l’opération</string>
     <string name="operationForm_save">Enregistrer</string>
     <string name="operations_empty">Aucune opération</string>
+    <string name="operations_categoryFilter">Catégories</string>
+    <string name="operations_allCategories">Toutes les catégories</string>
+    <plurals name="operations_categoryCount">
+        <item quantity="one">%d catégorie</item>
+        <item quantity="many">%d catégories</item>
+        <item quantity="other">%d catégories</item>
+    </plurals>
+    <string name="operations_startDate">Du</string>
+    <string name="operations_endDate">Au</string>
+    <string name="operations_clearDate">Effacer</string>
     <string name="operations_noCategory">Sans catégorie</string>
     <string name="operations_amount">%1$s\u202F%2$s</string>
     <plurals name="operations_deleteOperationTitle">
