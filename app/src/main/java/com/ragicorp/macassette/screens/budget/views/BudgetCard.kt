@@ -26,6 +26,7 @@ import kotlin.math.abs
 fun BudgetCard(
     budget: Budget,
     currency: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val category = budget.category
@@ -40,7 +41,7 @@ fun BudgetCard(
             listOf(Pie(data = remainingRatio, color = categoryColor), Pie(data = 1 - remainingRatio, color = Color.Black))
         }
 
-    OutlinedCard(modifier = modifier) {
+    OutlinedCard(onClick = onClick, modifier = modifier) {
         Column(
             modifier = Modifier.padding(dimensionResource(R.dimen.double_space)),
             verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.single_space)),

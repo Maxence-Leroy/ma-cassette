@@ -130,7 +130,14 @@ fun HomeScreen(
         val contentModifier = Modifier.padding(paddingValues)
         when (selectedScreen) {
             HomeSubScreens.Operations -> OperationsScreen(modifier = contentModifier)
-            HomeSubScreens.Budget -> BudgetScreen(modifier = contentModifier)
+            HomeSubScreens.Budget ->
+                BudgetScreen(
+                    onBudgetClick = { categoryId, month ->
+                        operationsViewModel.showCategoryMonth(categoryId, month)
+                        selectedScreen = HomeSubScreens.Operations
+                    },
+                    modifier = contentModifier,
+                )
             HomeSubScreens.Distribution -> DistributionScreen(modifier = contentModifier)
         }
     }

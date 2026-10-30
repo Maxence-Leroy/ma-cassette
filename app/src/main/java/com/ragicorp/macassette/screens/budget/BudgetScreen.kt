@@ -31,6 +31,7 @@ private const val GRID_SPAN_COUNT = 2
 
 @Composable
 fun BudgetScreen(
+    onBudgetClick: (categoryId: Long, month: YearMonth) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: BudgetViewModel = viewModel(),
 ) {
@@ -80,7 +81,11 @@ fun BudgetScreen(
             ) {
                 budgets.forEach { budget ->
                     key(budget.category.id) {
-                        BudgetCard(budget = budget, currency = viewModel.currency)
+                        BudgetCard(
+                            budget = budget,
+                            currency = viewModel.currency,
+                            onClick = { onBudgetClick(budget.category.id, selectedMonth) },
+                        )
                     }
                 }
             }

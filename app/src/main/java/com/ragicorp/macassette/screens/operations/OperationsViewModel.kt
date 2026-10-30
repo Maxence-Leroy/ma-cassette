@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
+import org.threeten.bp.YearMonth
 
 class OperationsViewModel(
     application: Application,
@@ -81,6 +82,18 @@ class OperationsViewModel(
 
     fun setEndDate(date: LocalDate?) {
         _endDate.value = date
+        clearSelection()
+    }
+
+    // Shows a category's operations for a month, with dates kept within what the date pickers allow
+    fun showCategoryMonth(
+        categoryId: Long,
+        month: YearMonth,
+    ) {
+        val monthStart = month.atDay(1)
+        _selectedCategoryIds.value = setOf(categoryId)
+        _startDate.value = firstOperationDate.value?.let { maxOf(it, monthStart) } ?: monthStart
+        _endDate.value = minOf(month.atEndOfMonth(), LocalDate.now())
         clearSelection()
     }
 
