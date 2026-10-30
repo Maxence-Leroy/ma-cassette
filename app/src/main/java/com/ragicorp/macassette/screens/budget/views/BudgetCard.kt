@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
-import java.text.NumberFormat
+import com.ragicorp.macassette.utils.formatAmount
 
 @Composable
 fun BudgetCard(
@@ -30,17 +30,7 @@ fun BudgetCard(
     currency: String,
     modifier: Modifier = Modifier,
 ) {
-    val budget =
-        remember(category.budget) {
-            category.budget?.let {
-                NumberFormat
-                    .getNumberInstance()
-                    .apply {
-                        minimumFractionDigits = if (it % 1.0 == 0.0) 0 else 2
-                        maximumFractionDigits = 2
-                    }.format(it)
-            }
-        }
+    val budget = remember(category.budget) { category.budget?.formatAmount() }
 
     OutlinedCard(modifier = modifier) {
         Column(

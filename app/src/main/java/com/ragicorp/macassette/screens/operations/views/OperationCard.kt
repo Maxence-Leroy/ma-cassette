@@ -41,8 +41,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Operation
+import com.ragicorp.macassette.utils.formatAmount
 import dev.vicart.compose.material.symbols.MaterialSymbol
-import java.text.NumberFormat
 import kotlin.math.roundToInt
 
 @Composable
@@ -71,13 +71,7 @@ fun OperationCard(
     }
     val amount =
         remember(operation.amount) {
-            NumberFormat
-                .getNumberInstance()
-                .apply {
-                    minimumFractionDigits = 2
-                    maximumFractionDigits = 2
-                }.format(operation.amount)
-                .let { if (operation.amount > 0) "+$it" else it }
+            operation.amount.formatAmount(isDecimalsForced = true).let { if (operation.amount > 0) "+$it" else it }
         }
 
     Box(modifier = modifier.fillMaxWidth()) {

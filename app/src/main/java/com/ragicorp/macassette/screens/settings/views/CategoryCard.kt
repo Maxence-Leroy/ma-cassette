@@ -24,8 +24,8 @@ import androidx.compose.ui.res.stringResource
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.CategoryType
+import com.ragicorp.macassette.utils.formatAmount
 import dev.vicart.compose.material.symbols.MaterialSymbol
-import java.text.NumberFormat
 
 @Composable
 fun CategoryCard(
@@ -35,17 +35,7 @@ fun CategoryCard(
     onDeleteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val budget =
-        remember(category.budget) {
-            category.budget?.let {
-                NumberFormat
-                    .getNumberInstance()
-                    .apply {
-                        minimumFractionDigits = if (it % 1.0 == 0.0) 0 else 2
-                        maximumFractionDigits = 2
-                    }.format(it)
-            }
-        }
+    val budget = remember(category.budget) { category.budget?.formatAmount() }
 
     OutlinedCard(modifier = modifier.fillMaxWidth()) {
         Row(

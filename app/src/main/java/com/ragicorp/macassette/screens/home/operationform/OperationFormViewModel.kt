@@ -14,12 +14,12 @@ import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.operation.OperationState
 import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
+import com.ragicorp.macassette.utils.formatAmount
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
-import java.text.NumberFormat
 import kotlin.math.abs
 
 class OperationFormViewModel(
@@ -47,15 +47,7 @@ class OperationFormViewModel(
     // Shown as a positive number: the sign is carried by the expense / earning selector
     private val _amount =
         mutableStateOf(
-            editedOperation?.amount?.let { abs(it) }?.let {
-                NumberFormat
-                    .getNumberInstance()
-                    .apply {
-                        isGroupingUsed = false
-                        minimumFractionDigits = if (it % 1.0 == 0.0) 0 else 2
-                        maximumFractionDigits = 2
-                    }.format(it)
-            } ?: "",
+            editedOperation?.amount?.let { abs(it).formatAmount(isGroupingUsed = false) } ?: "",
         )
     val amount: State<String> = _amount
 

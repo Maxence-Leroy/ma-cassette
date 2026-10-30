@@ -13,8 +13,8 @@ import com.ragicorp.macassette.operation.CategoryType
 import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.utils.AMOUNT_REGEX
 import com.ragicorp.macassette.utils.Preferences
+import com.ragicorp.macassette.utils.formatAmount
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
 
 private const val MAX_BUDGET = 9_999_999.99
 
@@ -34,15 +34,7 @@ class CategoryFormViewModel(
 
     private val _budget =
         mutableStateOf(
-            editedCategory?.budget?.let {
-                NumberFormat
-                    .getNumberInstance()
-                    .apply {
-                        isGroupingUsed = false
-                        minimumFractionDigits = if (it % 1.0 == 0.0) 0 else 2
-                        maximumFractionDigits = 2
-                    }.format(it)
-            } ?: "",
+            editedCategory?.budget?.formatAmount(isGroupingUsed = false) ?: "",
         )
     val budget: State<String> = _budget
 
