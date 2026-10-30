@@ -15,8 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
@@ -40,6 +40,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object Home
 
+@Serializable
 enum class HomeSubScreens(
     @StringRes val text: Int,
     val icon: String,
@@ -59,7 +60,7 @@ fun HomeScreen(
     // operations selected in the list
     operationsViewModel: OperationsViewModel = viewModel(),
 ) {
-    var selectedScreen by remember { mutableStateOf(HomeSubScreens.Operations) }
+    var selectedScreen by rememberSerializable { mutableStateOf(HomeSubScreens.Operations) }
     var showAddOperationSheet by rememberSaveable { mutableStateOf(false) }
     var showDeleteSelectedOperationsDialog by rememberSaveable { mutableStateOf(false) }
     val operations by operationsViewModel.operations.collectAsStateWithLifecycle()
