@@ -15,10 +15,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenuItem
@@ -87,6 +89,7 @@ fun OperationFormBottomSheet(
     val name by viewModel.name
     val amount by viewModel.amount
     val isEarning by viewModel.isEarning
+    val isWaitingForAction by viewModel.isWaitingForAction
     val notes by viewModel.notes
     val canSave by viewModel.canSave
     val sheetState =
@@ -150,6 +153,24 @@ fun OperationFormBottomSheet(
                 EarningSelector(
                     isEarning = isEarning,
                     onIsEarningChange = viewModel::setIsEarning,
+                )
+            }
+            Row(
+                // Text fields reserve space above their outline for the floating label, so match it to keep the gaps even
+                modifier =
+                    Modifier
+                        .padding(top = dimensionResource(R.dimen.single_space))
+                        .toggleable(
+                            value = isWaitingForAction,
+                            onValueChange = viewModel::setIsWaitingForAction,
+                            role = Role.Checkbox,
+                        ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Checkbox(checked = isWaitingForAction, onCheckedChange = null)
+                Text(
+                    text = stringResource(R.string.operationForm_waitingForAction),
+                    modifier = Modifier.padding(start = dimensionResource(R.dimen.single_space)),
                 )
             }
             OutlinedTextField(

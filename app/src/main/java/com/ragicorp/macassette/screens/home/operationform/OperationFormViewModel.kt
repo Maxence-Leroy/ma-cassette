@@ -54,6 +54,9 @@ class OperationFormViewModel(
     private val _isEarning = mutableStateOf(editedOperation?.let { it.amount > 0 } ?: false)
     val isEarning: State<Boolean> = _isEarning
 
+    private val _isWaitingForAction = mutableStateOf(editedOperation?.isWaitingForAction ?: false)
+    val isWaitingForAction: State<Boolean> = _isWaitingForAction
+
     private val _notes = mutableStateOf(editedOperation?.notes ?: "")
     val notes: State<String> = _notes
 
@@ -80,6 +83,10 @@ class OperationFormViewModel(
         _isEarning.value = isEarning
     }
 
+    fun setIsWaitingForAction(isWaitingForAction: Boolean) {
+        _isWaitingForAction.value = isWaitingForAction
+    }
+
     fun setNotes(notes: String) {
         _notes.value = notes
     }
@@ -98,7 +105,7 @@ class OperationFormViewModel(
                 label = _name.value.trim(),
                 notes = _notes.value.trim(),
                 recurrentPeriod = editedOperation?.recurrentPeriod,
-                isWaitingForAction = editedOperation?.isWaitingForAction ?: false,
+                isWaitingForAction = _isWaitingForAction.value,
                 state = editedOperation?.state ?: OperationState.ManuallyAdded,
             )
         viewModelScope.launch {

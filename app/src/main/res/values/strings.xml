@@ -19,6 +19,7 @@
     <string name="operationForm_expense">Dépense</string>
     <string name="operationForm_earning">Revenu</string>
     <string name="operationForm_amount">Montant</string>
+    <string name="operationForm_waitingForAction">À vérifier plus tard</string>
     <string name="operationForm_notes">Notes</string>
     <string name="operationForm_editTitle">Modifier l’opération</string>
     <string name="operationForm_save">Enregistrer</string>
