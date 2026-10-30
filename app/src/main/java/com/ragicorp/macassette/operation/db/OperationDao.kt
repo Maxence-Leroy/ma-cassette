@@ -15,17 +15,21 @@ import org.threeten.bp.LocalDate
 
 @Dao
 interface OperationDao {
-    // A null bound isn't applied, and categoryIds only filters when isCategoryFiltered is set
+    // A null bound isn't applied, and each other criterion only filters when its flag is set
     @Transaction
     @Query(
         "SELECT * FROM Operation WHERE (:isCategoryFiltered = 0 OR categoryId IN (:categoryIds)) " +
-            "AND (:start IS NULL OR date >= :start) AND (:end IS NULL OR date <= :end) ORDER BY date DESC, id DESC",
+            "AND (:start IS NULL OR date >= :start) AND (:end IS NULL OR date <= :end) " +
+            "AND (:isUncategorizedOnly = 0 OR categoryId IS NULL) AND (:isWaitingForActionOnly = 0 OR isWaitingForAction = 1) " +
+            "ORDER BY date DESC, id DESC",
     )
     fun getOperations(
         isCategoryFiltered: Boolean,
         categoryIds: List<Long>,
         start: LocalDate?,
         end: LocalDate?,
+        isUncategorizedOnly: Boolean,
+        isWaitingForActionOnly: Boolean,
     ): Flow<List<OperationWithCategory>>
 
     @Transaction

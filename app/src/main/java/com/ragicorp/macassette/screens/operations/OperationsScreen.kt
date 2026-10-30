@@ -52,6 +52,7 @@ import com.ragicorp.macassette.screens.operations.views.DateFilterField
 import com.ragicorp.macassette.screens.operations.views.DeleteOperationDialog
 import com.ragicorp.macassette.screens.operations.views.OperationCard
 import com.ragicorp.macassette.screens.operations.views.OperationDateHeader
+import com.ragicorp.macassette.screens.operations.views.QuickFilters
 import com.ragicorp.macassette.utils.collapsible
 import kotlinx.coroutines.delay
 import org.threeten.bp.LocalDate
@@ -71,6 +72,9 @@ fun OperationsScreen(
     val selectedCategoryIds by viewModel.selectedCategoryIds
     val startDate by viewModel.startDate
     val endDate by viewModel.endDate
+    val isUncategorizedOnly by viewModel.isUncategorizedOnly
+    val isWaitingForActionOnly by viewModel.isWaitingForActionOnly
+    val hasFilters by viewModel.hasFilters
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val selectedOperationIds by viewModel.selectedOperationIds
     val operationsByDate = remember(operations) { operations.groupBy { it.date } }
@@ -88,6 +92,16 @@ fun OperationsScreen(
     }
     LaunchedEffect(listState) {
         snapshotFlow { listState.isScrollInProgress }.collect { if (it) swipedOperationId = null }
+    }
+    // The list keeps its first visible operation in place when its content changes, so go back to the top once the
+    // operations of new filters are loaded rather than as soon as the filters change
+    val filters = listOf(selectedCategoryIds, startDate, endDate, isUncategorizedOnly, isWaitingForActionOnly)
+    var listedFilters by remember { mutableStateOf(filters) }
+    LaunchedEffect(operations) {
+        if (filters != listedFilters) {
+            listedFilters = filters
+            listState.scrollToItem(0)
+        }
     }
 
     // The filters slide away while scrolling down and come back as soon as scrolling up, like a collapsing app bar.
@@ -149,16 +163,24 @@ fun OperationsScreen(
                 .collapsible(offset = { filtersOffset.roundToInt() }, onHeightChange = { filtersHeight = it })
                 .padding(horizontal = dimensionResource(R.dimen.double_space))
         val filtersSpacing = Arrangement.spacedBy(dimensionResource(R.dimen.single_space))
-        if (isLandscape) {
-            Row(modifier = filtersModifier, horizontalArrangement = filtersSpacing) {
-                categoryFilter(Modifier.weight(2f))
-                dateFilters()
-            }
-        } else {
-            Column(modifier = filtersModifier, verticalArrangement = filtersSpacing) {
+        Column(modifier = filtersModifier, verticalArrangement = filtersSpacing) {
+            if (isLandscape) {
+                Row(horizontalArrangement = filtersSpacing) {
+                    categoryFilter(Modifier.weight(2f))
+                    dateFilters()
+                }
+            } else {
                 categoryFilter(Modifier.fillMaxWidth())
                 Row(horizontalArrangement = filtersSpacing, content = dateFilters)
             }
+            QuickFilters(
+                isUncategorizedOnly = isUncategorizedOnly,
+                onUncategorizedOnlyToggle = viewModel::toggleUncategorizedOnly,
+                isWaitingForActionOnly = isWaitingForActionOnly,
+                onWaitingForActionOnlyToggle = viewModel::toggleWaitingForActionOnly,
+                hasFilters = hasFilters,
+                onClearFilters = viewModel::clearFilters,
+            )
         }
         if (operations.isEmpty()) {
             Box(modifier = Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {

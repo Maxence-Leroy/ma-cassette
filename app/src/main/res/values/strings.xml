@@ -33,6 +33,8 @@
     <string name="operations_startDate">Du</string>
     <string name="operations_endDate">Au</string>
     <string name="operations_clearDate">Effacer</string>
+    <string name="operations_waitingForAction">À traiter</string>
+    <string name="operations_clearFilters">Tout effacer</string>
     <string name="operations_noCategory">Sans catégorie</string>
     <string name="operations_amount">%1$s\u202F%2$s</string>
     <plurals name="operations_deleteOperationTitle">

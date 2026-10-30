@@ -14,15 +14,16 @@ class OperationRepository(
 ) {
     private val operationDao = OperationDatabase.getInstance(context).operationDao()
 
-    // Operations of any of the categories (all of them when empty) between the dates, each bound being optional
-    fun getOperations(
-        categoryIds: Set<Long>,
-        start: LocalDate?,
-        end: LocalDate?,
-    ): Flow<List<Operation>> =
+    fun getOperations(filter: OperationFilter): Flow<List<Operation>> =
         operationDao
-            .getOperations(isCategoryFiltered = categoryIds.isNotEmpty(), categoryIds = categoryIds.toList(), start = start, end = end)
-            .map { operations -> operations.map { it.toOperation() } }
+            .getOperations(
+                isCategoryFiltered = filter.categoryIds.isNotEmpty(),
+                categoryIds = filter.categoryIds.toList(),
+                start = filter.start,
+                end = filter.end,
+                isUncategorizedOnly = filter.isUncategorizedOnly,
+                isWaitingForActionOnly = filter.isWaitingForActionOnly,
+            ).map { operations -> operations.map { it.toOperation() } }
 
     fun getFirstOperationDate(): Flow<LocalDate?> = operationDao.getFirstOperationDate()
 

@@ -2,12 +2,14 @@ package com.ragicorp.macassette.screens.operations
 
 import android.app.Application
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.Operation
+import com.ragicorp.macassette.operation.OperationFilter
 import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.utils.Preferences
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,10 +50,33 @@ class OperationsViewModel(
     private val _endDate = mutableStateOf<LocalDate?>(null)
     val endDate: State<LocalDate?> = _endDate
 
+    // Excludes selected categories, as no operation could be both without a category and in one of them
+    private val _isUncategorizedOnly = mutableStateOf(false)
+    val isUncategorizedOnly: State<Boolean> = _isUncategorizedOnly
+
+    private val _isWaitingForActionOnly = mutableStateOf(false)
+    val isWaitingForActionOnly: State<Boolean> = _isWaitingForActionOnly
+
+    val hasFilters: State<Boolean> =
+        derivedStateOf {
+            _selectedCategoryIds.value.isNotEmpty() ||
+                _startDate.value != null ||
+                _endDate.value != null ||
+                _isUncategorizedOnly.value ||
+                _isWaitingForActionOnly.value
+        }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val operations: StateFlow<List<Operation>> =
-        snapshotFlow { Triple(_selectedCategoryIds.value, _startDate.value, _endDate.value) }
-            .flatMapLatest { (categoryIds, start, end) -> operationRepository.getOperations(categoryIds, start, end) }
+        snapshotFlow {
+            OperationFilter(
+                categoryIds = _selectedCategoryIds.value,
+                start = _startDate.value,
+                end = _endDate.value,
+                isUncategorizedOnly = _isUncategorizedOnly.value,
+                isWaitingForActionOnly = _isWaitingForActionOnly.value,
+            )
+        }.flatMapLatest(operationRepository::getOperations)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     // The list is in selection mode as long as at least one operation is selected
@@ -67,11 +92,32 @@ class OperationsViewModel(
         val selectedCategoryIds = _selectedCategoryIds.value
         _selectedCategoryIds.value =
             if (category.id in selectedCategoryIds) selectedCategoryIds - category.id else selectedCategoryIds + category.id
+        _isUncategorizedOnly.value = false
         clearSelection()
     }
 
     fun clearCategoryFilter() {
         _selectedCategoryIds.value = emptySet()
+        clearSelection()
+    }
+
+    fun toggleUncategorizedOnly() {
+        _isUncategorizedOnly.value = !_isUncategorizedOnly.value
+        if (_isUncategorizedOnly.value) _selectedCategoryIds.value = emptySet()
+        clearSelection()
+    }
+
+    fun toggleWaitingForActionOnly() {
+        _isWaitingForActionOnly.value = !_isWaitingForActionOnly.value
+        clearSelection()
+    }
+
+    fun clearFilters() {
+        _selectedCategoryIds.value = emptySet()
+        _startDate.value = null
+        _endDate.value = null
+        _isUncategorizedOnly.value = false
+        _isWaitingForActionOnly.value = false
         clearSelection()
     }
 
@@ -94,6 +140,8 @@ class OperationsViewModel(
         _selectedCategoryIds.value = setOf(categoryId)
         _startDate.value = firstOperationDate.value?.let { maxOf(it, monthStart) } ?: monthStart
         _endDate.value = minOf(month.atEndOfMonth(), LocalDate.now())
+        _isUncategorizedOnly.value = false
+        _isWaitingForActionOnly.value = false
         clearSelection()
     }
 
