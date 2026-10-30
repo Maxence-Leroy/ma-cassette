@@ -6,6 +6,7 @@
     <dimen name="category_color">24dp</dimen>
     <dimen name="fab_clearance">88dp</dimen>
     <dimen name="card_border">1dp</dimen>
+    <dimen name="budget_card_width">200dp</dimen>
     <!-- Centers a 48dp icon button on a 56dp outlined field: 8dp reserved above the border for the label + (56 - 48) / 2 -->
     <dimen name="outlined_field_icon_offset">12dp</dimen>
 </resources>
