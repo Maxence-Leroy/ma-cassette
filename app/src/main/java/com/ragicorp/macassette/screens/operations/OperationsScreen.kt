@@ -21,6 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -28,6 +30,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.layout
@@ -46,8 +52,10 @@ import com.ragicorp.macassette.screens.operations.views.DateFilterField
 import com.ragicorp.macassette.screens.operations.views.DeleteOperationDialog
 import com.ragicorp.macassette.screens.operations.views.OperationCard
 import com.ragicorp.macassette.screens.operations.views.OperationDateHeader
+import com.ragicorp.macassette.utils.collapsible
 import kotlinx.coroutines.delay
 import org.threeten.bp.LocalDate
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
 private val SWIPED_OPERATION_TIMEOUT = 5.seconds
@@ -82,7 +90,31 @@ fun OperationsScreen(
         snapshotFlow { listState.isScrollInProgress }.collect { if (it) swipedOperationId = null }
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    // The filters slide away while scrolling down and come back as soon as scrolling up, like a collapsing app bar.
+    // The scroll moving them is consumed, so the list follows the finger instead of scrolling under them at the same time.
+    var filtersHeight by remember { mutableIntStateOf(0) }
+    var filtersOffset by remember { mutableFloatStateOf(0f) }
+    val filtersScrollConnection =
+        remember {
+            object : NestedScrollConnection {
+                override fun onPreScroll(
+                    available: Offset,
+                    source: NestedScrollSource,
+                ): Offset {
+                    val newOffset = (filtersOffset + available.y).coerceIn(-filtersHeight.toFloat(), 0f)
+                    val consumed = newOffset - filtersOffset
+                    filtersOffset = newOffset
+                    return Offset(0f, consumed)
+                }
+            }
+        }
+    // A list that can't scroll couldn't bring the filters back, so show them again
+    LaunchedEffect(listState) {
+        snapshotFlow { operations.isEmpty() || !(listState.canScrollForward || listState.canScrollBackward) }
+            .collect { if (it) filtersOffset = 0f }
+    }
+
+    Column(modifier = modifier.fillMaxSize().nestedScroll(filtersScrollConnection)) {
         // Portrait stacks the category above the dates, landscape lines all the filters up
         val categoryFilter: @Composable (Modifier) -> Unit = {
             CategoryFilter(
@@ -112,7 +144,10 @@ fun OperationsScreen(
                 modifier = Modifier.weight(1f),
             )
         }
-        val filtersModifier = Modifier.padding(horizontal = dimensionResource(R.dimen.double_space))
+        val filtersModifier =
+            Modifier
+                .collapsible(offset = { filtersOffset.roundToInt() }, onHeightChange = { filtersHeight = it })
+                .padding(horizontal = dimensionResource(R.dimen.double_space))
         val filtersSpacing = Arrangement.spacedBy(dimensionResource(R.dimen.single_space))
         if (isLandscape) {
             Row(modifier = filtersModifier, horizontalArrangement = filtersSpacing) {
