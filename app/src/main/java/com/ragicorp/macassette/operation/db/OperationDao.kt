@@ -26,6 +26,9 @@ interface OperationDao {
         states: List<OperationState>,
     ): List<OperationWithCategory>
 
+    @Query("SELECT MIN(date) FROM Operation")
+    fun getFirstOperationDate(): Flow<LocalDate?>
+
     @Insert
     suspend fun insertOperation(operation: OperationEntity)
 

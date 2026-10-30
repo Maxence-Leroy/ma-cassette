@@ -5,6 +5,7 @@ import com.ragicorp.macassette.operation.db.OperationDatabase
 import com.ragicorp.macassette.operation.db.toEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.threeten.bp.LocalDate
 
 class OperationRepository(
     context: Context,
@@ -12,6 +13,8 @@ class OperationRepository(
     private val operationDao = OperationDatabase.getInstance(context).operationDao()
 
     fun getOperations(): Flow<List<Operation>> = operationDao.getOperations().map { operations -> operations.map { it.toOperation() } }
+
+    fun getFirstOperationDate(): Flow<LocalDate?> = operationDao.getFirstOperationDate()
 
     suspend fun insertOperation(operation: Operation) = operationDao.insertOperation(operation.toEntity())
 
