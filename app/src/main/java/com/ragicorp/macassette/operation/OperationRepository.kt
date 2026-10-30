@@ -4,6 +4,7 @@ import android.content.Context
 import com.ragicorp.macassette.operation.db.OperationDatabase
 import com.ragicorp.macassette.operation.db.toEntity
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.threeten.bp.YearMonth
 
@@ -48,8 +49,18 @@ class OperationRepository(
 
     fun getCategories(): Flow<List<Category>> = operationDao.getCategories().map { categories -> categories.map { it.toCategory() } }
 
-    fun getBudgetCategories(): Flow<List<Category>> =
-        operationDao.getBudgetCategories().map { categories -> categories.map { it.toCategory() } }
+    // Expenses are negative and refunds positive, so adding the month's operations to the budget gives what is left
+    fun getBudgets(month: YearMonth): Flow<List<Budget>> =
+        combine(
+            operationDao.getBudgetCategories(),
+            operationDao.getCategoryTotals(start = month.atDay(1), end = month.atEndOfMonth()),
+        ) { categories, totals ->
+            val totalByCategoryId = totals.associate { it.categoryId to it.total }
+            categories.map { entity ->
+                val category = entity.toCategory()
+                Budget(category = category, remaining = (category.budget ?: 0.0) + (totalByCategoryId[category.id] ?: 0.0))
+            }
+        }
 
     suspend fun insertCategory(category: Category) = operationDao.insertCategory(category.toEntity())
 

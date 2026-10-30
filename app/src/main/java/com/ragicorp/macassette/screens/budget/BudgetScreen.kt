@@ -36,7 +36,7 @@ fun BudgetScreen(
     modifier: Modifier = Modifier,
     viewModel: BudgetViewModel = viewModel(),
 ) {
-    val categories by viewModel.categories.collectAsStateWithLifecycle()
+    val budgets by viewModel.budgets.collectAsStateWithLifecycle()
     val firstMonth by viewModel.firstMonth.collectAsStateWithLifecycle()
     val selectedMonth by viewModel.selectedMonth
     val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -52,7 +52,7 @@ fun BudgetScreen(
             onNextClick = viewModel::selectNextMonth,
             modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.single_space)),
         )
-        if (categories.isEmpty()) {
+        if (budgets.isEmpty()) {
             Box(modifier = Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
                     text = stringResource(R.string.budget_empty),
@@ -69,9 +69,9 @@ fun BudgetScreen(
                 horizontalArrangement = Arrangement.spacedBy(space),
                 verticalArrangement = Arrangement.spacedBy(space),
             ) {
-                items(categories, key = { it.id }) { category ->
+                items(budgets, key = { it.category.id }) { budget ->
                     BudgetCard(
-                        category = category,
+                        budget = budget,
                         currency = viewModel.currency,
                         modifier = Modifier.width(dimensionResource(R.dimen.budget_card_width)).fillMaxHeight(),
                     )
@@ -86,8 +86,8 @@ fun BudgetScreen(
                 horizontalArrangement = Arrangement.spacedBy(space),
                 verticalArrangement = Arrangement.spacedBy(space),
             ) {
-                items(categories, key = { it.id }) { category ->
-                    BudgetCard(category = category, currency = viewModel.currency)
+                items(budgets, key = { it.category.id }) { budget ->
+                    BudgetCard(budget = budget, currency = viewModel.currency)
                 }
             }
         }

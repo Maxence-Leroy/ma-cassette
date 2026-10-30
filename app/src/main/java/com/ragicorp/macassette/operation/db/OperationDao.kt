@@ -29,6 +29,15 @@ interface OperationDao {
     @Query("SELECT MIN(date) FROM Operation")
     fun getFirstOperationDate(): Flow<LocalDate?>
 
+    @Query(
+        "SELECT categoryId, SUM(amount) AS total FROM Operation " +
+            "WHERE categoryId IS NOT NULL AND date BETWEEN :start AND :end GROUP BY categoryId",
+    )
+    fun getCategoryTotals(
+        start: LocalDate,
+        end: LocalDate,
+    ): Flow<List<CategoryTotal>>
+
     @Insert
     suspend fun insertOperation(operation: OperationEntity)
 

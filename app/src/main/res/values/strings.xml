@@ -10,6 +10,8 @@
         <item quantity="other">%d sélectionnées</item>
     </plurals>
     <string name="budget_empty">Aucune enveloppe</string>
+    <string name="budget_remaining">Reste %1$s\u202F%2$s</string>
+    <string name="budget_exceeded">Dépassé de %1$s\u202F%2$s</string>
     <string name="budget_monthlyAmount">%1$s\u202F%2$s par mois</string>
     <string name="operationForm_date">Date</string>
     <string name="operationForm_category">Catégorie</string>

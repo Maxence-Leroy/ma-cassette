@@ -21,16 +21,20 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.ragicorp.macassette.R
-import com.ragicorp.macassette.operation.Category
+import com.ragicorp.macassette.operation.Budget
 import com.ragicorp.macassette.utils.formatAmount
+import kotlin.math.abs
 
 @Composable
 fun BudgetCard(
-    category: Category,
+    budget: Budget,
     currency: String,
     modifier: Modifier = Modifier,
 ) {
-    val budget = remember(category.budget) { category.budget?.formatAmount() }
+    val category = budget.category
+    val monthlyAmount = remember(category.budget) { category.budget?.formatAmount() }
+    val remaining = remember(budget.remaining) { abs(budget.remaining).formatAmount() }
+    val isExceeded = budget.remaining < 0
 
     OutlinedCard(modifier = modifier) {
         Column(
@@ -55,9 +59,19 @@ fun BudgetCard(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            if (budget != null) {
+            Text(
+                text =
+                    stringResource(
+                        if (isExceeded) R.string.budget_exceeded else R.string.budget_remaining,
+                        remaining,
+                        currency,
+                    ),
+                style = MaterialTheme.typography.titleLarge,
+                color = if (isExceeded) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+            )
+            if (monthlyAmount != null) {
                 Text(
-                    text = stringResource(R.string.budget_monthlyAmount, budget, currency),
+                    text = stringResource(R.string.budget_monthlyAmount, monthlyAmount, currency),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
