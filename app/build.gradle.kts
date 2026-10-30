@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.room.runtime)
+    implementation(libs.compose.charts)
     implementation(libs.compose.material.symbols)
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.threetenbp)
