@@ -20,6 +20,7 @@ import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.settings.views.CategoriesSetting
 import com.ragicorp.macassette.screens.settings.views.CurrencySetting
 import com.ragicorp.macassette.screens.settings.views.ParsersSetting
+import com.ragicorp.macassette.screens.settings.views.SortingRulesSetting
 import com.ragicorp.macassette.screens.settings.views.StatementUrlSetting
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
@@ -31,6 +32,8 @@ data object Settings
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    onAddSortingRuleClick: () -> Unit,
+    onEditSortingRuleClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel(),
 ) {
@@ -38,6 +41,7 @@ fun SettingsScreen(
     val statementUrl by viewModel.statementUrl
     val categories by viewModel.categories.collectAsStateWithLifecycle()
     val parsers by viewModel.parsers.collectAsStateWithLifecycle()
+    val sortingRules by viewModel.sortingRules.collectAsStateWithLifecycle()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -71,6 +75,12 @@ fun SettingsScreen(
                 categories = categories,
                 currency = currency,
                 onDeleteCategory = viewModel::deleteCategory,
+            )
+            SortingRulesSetting(
+                sortingRules = sortingRules,
+                onAddClick = onAddSortingRuleClick,
+                onEditClick = { onEditSortingRuleClick(it.id) },
+                onDeleteSortingRule = viewModel::deleteSortingRule,
             )
             ParsersSetting(
                 parsers = parsers,

@@ -94,6 +94,10 @@ interface OperationDao {
     suspend fun deleteParser(parser: ParserEntity)
 
     @Transaction
+    @Query("SELECT * FROM SortingRule ORDER BY textToRecognize COLLATE NOCASE")
+    fun getSortingRules(): Flow<List<SortingRuleWithCategory>>
+
+    @Transaction
     @Query("SELECT * FROM SortingRule WHERE id = :id")
     suspend fun getSortingRule(id: Long): SortingRuleWithCategory?
 
@@ -102,6 +106,9 @@ interface OperationDao {
 
     @Update
     suspend fun updateSortingRule(sortingRule: SortingRuleEntity)
+
+    @Delete
+    suspend fun deleteSortingRule(sortingRule: SortingRuleEntity)
 }
 
 data class OperationWithCategory(

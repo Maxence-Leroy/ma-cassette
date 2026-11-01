@@ -53,7 +53,11 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable<Settings> {
-                        SettingsScreen(onBack = { navController.popBackStack() })
+                        SettingsScreen(
+                            onBack = { navController.popBackStack() },
+                            onAddSortingRuleClick = { navController.navigate(RuleForm(ruleId = null)) },
+                            onEditSortingRuleClick = { navController.navigate(RuleForm(ruleId = it)) },
+                        )
                     }
                 }
             }

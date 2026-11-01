@@ -86,6 +86,16 @@
     <string name="settings_deleteParserTitle">Supprimer le profil bancaire ?</string>
     <string name="settings_deleteParserMessage">\"%1$s\" sera supprimé.</string>
     <string name="settings_deleteParserConfirm">Supprimer</string>
+    <string name="settings_sortingRules">Règles de tri</string>
+    <string name="settings_addSortingRule">Ajouter une règle de tri</string>
+    <string name="settings_deleteSortingRuleTitle">Supprimer la règle de tri ?</string>
+    <string name="settings_deleteSortingRuleMessage">\"%1$s\" sera supprimée.</string>
+    <string name="settings_deleteSortingRuleConfirm">Supprimer</string>
+    <plurals name="settings_sortingRuleCount">
+        <item quantity="one">%d règle</item>
+        <item quantity="many">%d règles</item>
+        <item quantity="other">%d règles</item>
+    </plurals>
     <plurals name="settings_parserCount">
         <item quantity="one">%d profil</item>
         <item quantity="many">%d profils</item>

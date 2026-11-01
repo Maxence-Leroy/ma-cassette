@@ -92,9 +92,13 @@ class OperationRepository(
 
     suspend fun deleteParser(parser: Parser) = operationDao.deleteParser(parser.toEntity())
 
+    fun getSortingRules(): Flow<List<SortingRule>> = operationDao.getSortingRules().map { rules -> rules.map { it.toSortingRule() } }
+
     suspend fun getSortingRule(id: Long): SortingRule? = operationDao.getSortingRule(id)?.toSortingRule()
 
     suspend fun insertSortingRule(sortingRule: SortingRule) = operationDao.insertSortingRule(sortingRule.toEntity())
 
     suspend fun updateSortingRule(sortingRule: SortingRule) = operationDao.updateSortingRule(sortingRule.toEntity())
+
+    suspend fun deleteSortingRule(sortingRule: SortingRule) = operationDao.deleteSortingRule(sortingRule.toEntity())
 }
