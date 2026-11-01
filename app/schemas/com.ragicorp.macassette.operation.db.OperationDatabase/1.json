@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "978d66b9d0a052e34ac46133b5028a21",
+    "identityHash": "7364b4f4b697f713ab42d4b6d7357845",
     "entities": [
       {
         "tableName": "Operation",
@@ -174,11 +174,65 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "SortingRule",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `textToRecognize` TEXT NOT NULL, `categoryToApplyId` INTEGER NOT NULL, FOREIGN KEY(`categoryToApplyId`) REFERENCES `Category`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textToRecognize",
+            "columnName": "textToRecognize",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "categoryToApplyId",
+            "columnName": "categoryToApplyId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_SortingRule_categoryToApplyId",
+            "unique": false,
+            "columnNames": [
+              "categoryToApplyId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_SortingRule_categoryToApplyId` ON `${TABLE_NAME}` (`categoryToApplyId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Category",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "categoryToApplyId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '978d66b9d0a052e34ac46133b5028a21')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7364b4f4b697f713ab42d4b6d7357845')"
     ]
   }
 }
