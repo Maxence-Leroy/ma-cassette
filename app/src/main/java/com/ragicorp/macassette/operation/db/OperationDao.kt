@@ -75,6 +75,9 @@ interface OperationDao {
     )
     fun getBudgetCategories(): Flow<List<CategoryEntity>>
 
+    @Query("SELECT * FROM Category WHERE id = :id")
+    suspend fun getCategory(id: Long): CategoryEntity?
+
     @Insert
     suspend fun insertCategory(category: CategoryEntity)
 

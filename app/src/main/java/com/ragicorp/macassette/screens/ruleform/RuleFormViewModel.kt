@@ -19,6 +19,8 @@ import kotlinx.coroutines.launch
 class RuleFormViewModel(
     application: Application,
     private val ruleId: Long?,
+    textToRecognize: String?,
+    categoryToApplyId: Long?,
 ) : AndroidViewModel(application) {
     private val operationRepository = OperationRepository(application)
 
@@ -27,7 +29,7 @@ class RuleFormViewModel(
             .getCategories()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    private val _textToRecognize = mutableStateOf("")
+    private val _textToRecognize = mutableStateOf(textToRecognize.orEmpty())
     val textToRecognize: State<String> = _textToRecognize
 
     private val _categoryToApply = mutableStateOf<Category?>(null)
@@ -44,6 +46,8 @@ class RuleFormViewModel(
                     _categoryToApply.value = rule.categoryToApply
                 }
             }
+        } else if (categoryToApplyId != null) {
+            viewModelScope.launch { _categoryToApply.value = operationRepository.getCategory(categoryToApplyId) }
         }
     }
 
@@ -75,13 +79,16 @@ class RuleFormViewModel(
     }
 
     // The default viewModel() factory can only pass the Application, so this one also passes the id of the rule being
-    // edited from the route (null when creating a new one)
+    // edited from the route (null when creating a new one), or the values to prefill a new rule with
     class RuleFormViewModelFactory(
         private val application: Application,
         private val ruleId: Long?,
+        private val textToRecognize: String?,
+        private val categoryToApplyId: Long?,
     ) : ViewModelProvider.NewInstanceFactory() {
         // Only ever asked for RuleFormViewModel, so the cast to T is safe
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = RuleFormViewModel(application, ruleId) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T =
+            RuleFormViewModel(application, ruleId, textToRecognize, categoryToApplyId) as T
     }
 }

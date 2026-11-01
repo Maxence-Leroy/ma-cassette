@@ -29,16 +29,21 @@ import com.ragicorp.macassette.ui.views.CategoryDropdown
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
 
-// A null ruleId creates a new rule, otherwise the rule with this id is edited
+// A null ruleId creates a new rule, prefilled with the given text and category when set, otherwise the rule with this
+// id is edited
 @Serializable
 data class RuleForm(
     val ruleId: Long?,
+    val textToRecognize: String?,
+    val categoryToApplyId: Long?,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RuleFormScreen(
     ruleId: Long?,
+    textToRecognize: String?,
+    categoryToApplyId: Long?,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: RuleFormViewModel =
@@ -47,6 +52,8 @@ fun RuleFormScreen(
                 RuleFormViewModel.RuleFormViewModelFactory(
                     application = LocalContext.current.applicationContext as Application,
                     ruleId = ruleId,
+                    textToRecognize = textToRecognize,
+                    categoryToApplyId = categoryToApplyId,
                 ),
         ),
 ) {

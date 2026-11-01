@@ -32,6 +32,11 @@ class MainActivity : ComponentActivity() {
                         HomeScreen(
                             onImportOperationsClick = { navController.navigate(ImportOperations) },
                             onSettingsClick = { navController.navigate(Settings) },
+                            onCreateRuleClick = { textToRecognize, categoryToApplyId ->
+                                navController.navigate(
+                                    RuleForm(ruleId = null, textToRecognize = textToRecognize, categoryToApplyId = categoryToApplyId),
+                                )
+                            },
                         )
                     }
                     composable<ImportOperations> {
@@ -47,16 +52,27 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable<RuleForm> { backStackEntry ->
+                        val route = backStackEntry.toRoute<RuleForm>()
                         RuleFormScreen(
-                            ruleId = backStackEntry.toRoute<RuleForm>().ruleId,
+                            ruleId = route.ruleId,
+                            textToRecognize = route.textToRecognize,
+                            categoryToApplyId = route.categoryToApplyId,
                             onBack = { navController.popBackStack() },
                         )
                     }
                     composable<Settings> {
                         SettingsScreen(
                             onBack = { navController.popBackStack() },
-                            onAddSortingRuleClick = { navController.navigate(RuleForm(ruleId = null)) },
-                            onEditSortingRuleClick = { navController.navigate(RuleForm(ruleId = it)) },
+                            onAddSortingRuleClick = {
+                                navController.navigate(
+                                    RuleForm(ruleId = null, textToRecognize = null, categoryToApplyId = null),
+                                )
+                            },
+                            onEditSortingRuleClick = {
+                                navController.navigate(
+                                    RuleForm(ruleId = it, textToRecognize = null, categoryToApplyId = null),
+                                )
+                            },
                         )
                     }
                 }

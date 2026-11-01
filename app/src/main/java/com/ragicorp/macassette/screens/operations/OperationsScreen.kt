@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.home.operationform.OperationFormBottomSheet
 import com.ragicorp.macassette.screens.operations.views.CategoryFilter
+import com.ragicorp.macassette.screens.operations.views.CreateRuleDialog
 import com.ragicorp.macassette.screens.operations.views.DateFilterField
 import com.ragicorp.macassette.screens.operations.views.DeleteOperationDialog
 import com.ragicorp.macassette.screens.operations.views.OperationCard
@@ -55,6 +57,7 @@ import com.ragicorp.macassette.screens.operations.views.OperationDateHeader
 import com.ragicorp.macassette.screens.operations.views.QuickFilters
 import com.ragicorp.macassette.utils.collapsible
 import kotlinx.coroutines.delay
+import kotlinx.serialization.Serializable
 import org.threeten.bp.LocalDate
 import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
@@ -63,6 +66,7 @@ private val SWIPED_OPERATION_TIMEOUT = 5.seconds
 
 @Composable
 fun OperationsScreen(
+    onCreateRuleClick: (textToRecognize: String, categoryToApplyId: Long) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: OperationsViewModel = viewModel(),
 ) {
@@ -83,6 +87,8 @@ fun OperationsScreen(
     var pressedOperationId by remember { mutableStateOf<Long?>(null) }
     var operationIdToEdit by rememberSaveable { mutableStateOf<Long?>(null) }
     var operationIdToDelete by rememberSaveable { mutableStateOf<Long?>(null) }
+    // Kept apart from the operation, which may no longer be listed once categorized (e.g. when only uncategorized ones are)
+    var ruleSuggestion by rememberSerializable { mutableStateOf<RuleSuggestion>(RuleSuggestion.Hidden) }
 
     LaunchedEffect(swipedOperationId) {
         if (swipedOperationId != null) {
@@ -255,6 +261,26 @@ fun OperationsScreen(
             OperationFormBottomSheet(
                 onDismissRequest = { operationIdToEdit = null },
                 operation = operation,
+                onSave = { savedOperation ->
+                    val category = savedOperation.category
+                    if (operation.category == null && category != null) {
+                        ruleSuggestion = RuleSuggestion.Shown(textToRecognize = savedOperation.label, categoryToApplyId = category.id)
+                    }
+                },
+            )
+        }
+    }
+
+    (ruleSuggestion as? RuleSuggestion.Shown)?.let { suggestion ->
+        categories.find { it.id == suggestion.categoryToApplyId }?.let { category ->
+            CreateRuleDialog(
+                textToRecognize = suggestion.textToRecognize,
+                category = category,
+                onConfirm = {
+                    onCreateRuleClick(suggestion.textToRecognize, suggestion.categoryToApplyId)
+                    ruleSuggestion = RuleSuggestion.Hidden
+                },
+                onDismissRequest = { ruleSuggestion = RuleSuggestion.Hidden },
             )
         }
     }
@@ -269,6 +295,18 @@ fun OperationsScreen(
             onDismissRequest = { operationIdToDelete = null },
         )
     }
+}
+
+@Serializable
+private sealed class RuleSuggestion {
+    @Serializable
+    data object Hidden : RuleSuggestion()
+
+    @Serializable
+    data class Shown(
+        val textToRecognize: String,
+        val categoryToApplyId: Long,
+    ) : RuleSuggestion()
 }
 
 // Pulls the card up by its border width so touching cards share a single border line instead of doubling it

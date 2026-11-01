@@ -50,6 +50,10 @@
         <item quantity="other">%d opérations seront supprimées.</item>
     </plurals>
     <string name="operations_deleteOperationConfirm">Supprimer</string>
+    <string name="operations_createRuleTitle">Créer une règle de tri ?</string>
+    <string name="operations_createRuleMessage">Classer automatiquement dans \"%2$s\" les opérations importées dont le libellé contient \"%1$s\" ?</string>
+    <string name="operations_createRuleConfirm">Oui</string>
+    <string name="operations_createRuleDismiss">Non</string>
     <string name="importOperations_title">Importer un relevé d’opérations</string>
     <string name="importOperations_selectFile">Choisir un fichier CSV</string>
     <string name="importOperations_downloadStatement">Télécharger un relevé</string>

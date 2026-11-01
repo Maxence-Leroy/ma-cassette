@@ -87,6 +87,8 @@ class OperationRepository(
             }
         }
 
+    suspend fun getCategory(id: Long): Category? = operationDao.getCategory(id)?.toCategory()
+
     suspend fun insertCategory(category: Category) = operationDao.insertCategory(category.toEntity())
 
     suspend fun updateCategory(category: Category) = operationDao.updateCategory(category.toEntity())

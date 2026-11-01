@@ -91,7 +91,7 @@ class OperationFormViewModel(
         _notes.value = notes
     }
 
-    fun save(onSaved: () -> Unit) {
+    fun save(onSaved: (Operation) -> Unit) {
         val category = _category.value ?: return
         val amount = parsedAmount() ?: return
         if (_name.value.isBlank()) return
@@ -114,7 +114,7 @@ class OperationFormViewModel(
             } else {
                 operationRepository.updateOperation(operation)
             }
-            onSaved()
+            onSaved(operation)
         }
     }
 

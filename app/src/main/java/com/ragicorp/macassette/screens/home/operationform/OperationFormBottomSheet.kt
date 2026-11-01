@@ -63,6 +63,7 @@ fun OperationFormBottomSheet(
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     operation: Operation? = null,
+    onSave: (Operation) -> Unit = {},
     viewModel: OperationFormViewModel =
         viewModel(
             factory =
@@ -172,7 +173,8 @@ fun OperationFormBottomSheet(
             )
             Button(
                 onClick = {
-                    viewModel.save {
+                    viewModel.save { savedOperation ->
+                        onSave(savedOperation)
                         scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
                     }
                 },

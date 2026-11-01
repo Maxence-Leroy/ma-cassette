@@ -55,6 +55,7 @@ enum class HomeSubScreens(
 fun HomeScreen(
     onImportOperationsClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onCreateRuleClick: (textToRecognize: String, categoryToApplyId: Long) -> Unit,
     modifier: Modifier = Modifier,
     // Same instance as OperationsScreen's (both are scoped to the Home destination), so the top bar can act on the
     // operations selected in the list
@@ -129,7 +130,7 @@ fun HomeScreen(
     ) { paddingValues ->
         val contentModifier = Modifier.padding(paddingValues)
         when (selectedScreen) {
-            HomeSubScreens.Operations -> OperationsScreen(modifier = contentModifier)
+            HomeSubScreens.Operations -> OperationsScreen(onCreateRuleClick = onCreateRuleClick, modifier = contentModifier)
             HomeSubScreens.Budget ->
                 BudgetScreen(
                     onBudgetClick = { categoryId, month ->
