@@ -114,4 +114,9 @@
     <string name="categoryForm_internal">Interne</string>
     <string name="categoryForm_editTitle">Modifier la catégorie</string>
     <string name="categoryForm_save">Enregistrer</string>
+    <string name="ruleForm_createTitle">Créer une règle de tri</string>
+    <string name="ruleForm_editTitle">Modifier la règle de tri</string>
+    <string name="ruleForm_textToRecognize">Texte à reconnaître</string>
+    <string name="ruleForm_categoryToApply">Catégorie à appliquer</string>
+    <string name="ruleForm_save">Enregistrer</string>
 </resources>

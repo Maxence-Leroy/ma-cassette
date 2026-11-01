@@ -91,4 +91,10 @@ class OperationRepository(
     suspend fun insertParser(parser: Parser) = operationDao.insertParser(parser.toEntity())
 
     suspend fun deleteParser(parser: Parser) = operationDao.deleteParser(parser.toEntity())
+
+    suspend fun getSortingRule(id: Long): SortingRule? = operationDao.getSortingRule(id)?.toSortingRule()
+
+    suspend fun insertSortingRule(sortingRule: SortingRule) = operationDao.insertSortingRule(sortingRule.toEntity())
+
+    suspend fun updateSortingRule(sortingRule: SortingRule) = operationDao.updateSortingRule(sortingRule.toEntity())
 }

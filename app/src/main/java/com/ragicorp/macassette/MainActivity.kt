@@ -14,6 +14,8 @@ import com.ragicorp.macassette.screens.home.Home
 import com.ragicorp.macassette.screens.home.HomeScreen
 import com.ragicorp.macassette.screens.importoperations.ImportOperations
 import com.ragicorp.macassette.screens.importoperations.ImportOperationsScreen
+import com.ragicorp.macassette.screens.ruleform.RuleForm
+import com.ragicorp.macassette.screens.ruleform.RuleFormScreen
 import com.ragicorp.macassette.screens.settings.Settings
 import com.ragicorp.macassette.screens.settings.SettingsScreen
 import com.ragicorp.macassette.ui.theme.MaCassetteTheme
@@ -41,6 +43,12 @@ class MainActivity : ComponentActivity() {
                     composable<CreateParser> { backStackEntry ->
                         CreateParserScreen(
                             columns = backStackEntry.toRoute<CreateParser>().columns,
+                            onBack = { navController.popBackStack() },
+                        )
+                    }
+                    composable<RuleForm> { backStackEntry ->
+                        RuleFormScreen(
+                            ruleId = backStackEntry.toRoute<RuleForm>().ruleId,
                             onBack = { navController.popBackStack() },
                         )
                     }

@@ -92,6 +92,16 @@ interface OperationDao {
 
     @Delete
     suspend fun deleteParser(parser: ParserEntity)
+
+    @Transaction
+    @Query("SELECT * FROM SortingRule WHERE id = :id")
+    suspend fun getSortingRule(id: Long): SortingRuleWithCategory?
+
+    @Insert
+    suspend fun insertSortingRule(sortingRule: SortingRuleEntity)
+
+    @Update
+    suspend fun updateSortingRule(sortingRule: SortingRuleEntity)
 }
 
 data class OperationWithCategory(
