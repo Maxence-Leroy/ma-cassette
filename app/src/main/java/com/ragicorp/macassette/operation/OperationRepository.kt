@@ -49,9 +49,22 @@ class OperationRepository(
                     .firstOrNull { it.date == operation.date && it.label == operation.label && it.amount == operation.amount }
                     ?.let { unmatchedSavedOperations.remove(it) } == true
             }
-        operationDao.insertOperations(newOperations.map { it.toEntity() })
+        val sortingRules = operationDao.fetchSortingRules().map { it.toSortingRule() }
+        operationDao.insertOperations(newOperations.map { it.copy(category = findCategory(it.label, sortingRules)).toEntity() })
         return newOperations.size
     }
+
+    // The category of the rules whose text is in the label, ignoring case. Left unknown when no rule matches, or when
+    // matching rules apply different categories.
+    private fun findCategory(
+        label: String,
+        sortingRules: List<SortingRule>,
+    ): Category? =
+        sortingRules
+            .filter { label.lowercase().contains(it.textToRecognize.lowercase()) }
+            .map { it.categoryToApply }
+            .distinctBy { it.id }
+            .singleOrNull()
 
     suspend fun updateOperation(operation: Operation) = operationDao.updateOperation(operation.toEntity())
 

@@ -98,6 +98,10 @@ interface OperationDao {
     fun getSortingRules(): Flow<List<SortingRuleWithCategory>>
 
     @Transaction
+    @Query("SELECT * FROM SortingRule")
+    suspend fun fetchSortingRules(): List<SortingRuleWithCategory>
+
+    @Transaction
     @Query("SELECT * FROM SortingRule WHERE id = :id")
     suspend fun getSortingRule(id: Long): SortingRuleWithCategory?
 
