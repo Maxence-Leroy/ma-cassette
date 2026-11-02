@@ -4,7 +4,7 @@ Android app to keep track of expenses. MVVM architecture, single `:app` Gradle m
 
 This document describes the standards **actually used** in this codebase today, so new code stays
 consistent. It does not prescribe tooling or practices that aren't already in place — where
-something is missing (e.g. there are no tests), that's noted explicitly rather than invented.
+something is missing (e.g. there is no CI), that's noted explicitly rather than invented.
 
 ## Build
 
@@ -119,6 +119,18 @@ something is missing (e.g. there are no tests), that's noted explicitly rather t
 - Encapsulation idiom: `private val _x` backing field + public `val x` read-only exposure.
 - **Before considering any task done, run `./gradlew ktlintCheck`** and fix any violations
   (`./gradlew ktlintFormat` can auto-fix most). A task isn't finished until this passes clean.
+
+## Testing
+
+- Only local JVM unit tests under `app/src/test/` (JUnit 4, `kotlinx-coroutines-test`, mockk) — no
+  instrumented tests under `app/src/androidTest/`. Run them with `./gradlew testDebugUnitTest`.
+- Only `OperationRepository.importOperations` is covered so far (`OperationRepositoryTest`).
+- Repositories are tested against a mockk-mocked DAO. Since a repository gets its DAO from the
+  database singleton, the test mocks the companion with `mockkObject(OperationDatabase)` so
+  `getInstance(any())` returns a mocked database, and calls `unmockkAll()` in `@After`.
+- Test names are backtick sentences describing the behavior (e.g.
+  `` `operations already saved by a previous import are skipped` ``), with suspend calls wrapped in
+  `runTest`.
 
 ## Git conventions
 
