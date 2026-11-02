@@ -8,6 +8,9 @@
     <dimen name="card_border">1dp</dimen>
     <dimen name="budget_card_width">200dp</dimen>
     <dimen name="budget_pie_stroke">5dp</dimen>
+    <dimen name="distribution_leader_line">16dp</dimen>
+    <dimen name="distribution_label_spacing">4dp</dimen>
+    <dimen name="distribution_leader_stroke">1dp</dimen>
     <!-- Centers a 48dp icon button on a 56dp outlined field: 8dp reserved above the border for the label + (56 - 48) / 2 -->
     <dimen name="outlined_field_icon_offset">12dp</dimen>
 </resources>

@@ -13,6 +13,9 @@
     <string name="budget_remaining">Reste %1$s\u202F%2$s</string>
     <string name="budget_exceeded">Dépassé de %1$s\u202F%2$s</string>
     <string name="budget_monthlyAmount">%1$s\u202F%2$s par mois</string>
+    <string name="distribution_empty">Aucune dépense ce mois-ci</string>
+    <string name="distribution_noCategory">Sans catégorie</string>
+    <string name="distribution_amount">%1$s\u202F%2$s</string>
     <string name="operationForm_date">Date</string>
     <string name="operationForm_category">Catégorie</string>
     <string name="operationForm_name">Nom</string>

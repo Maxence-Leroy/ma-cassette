@@ -1,4 +1,4 @@
-package com.ragicorp.macassette.screens.budget.views
+package com.ragicorp.macassette.ui.views
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth

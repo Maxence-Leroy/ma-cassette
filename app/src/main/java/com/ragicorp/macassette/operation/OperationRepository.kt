@@ -105,6 +105,32 @@ class OperationRepository(
     fun getCategories(): Flow<List<Category>> =
         operationDao.getCategories().map { categories -> categories.map { it.toCategory() }.sortedWith(CATEGORY_ORDER) }
 
+    // Expenses are negative and refunds positive, so a category's spending is the opposite of its total. Expense
+    // categories with nothing spent (or more refunded than spent) over the month are left out. Uncategorized operations
+    // come last, only counting the expenses since they can also be earnings.
+    fun getExpenses(month: YearMonth): Flow<List<CategoryExpense>> {
+        val start = month.atDay(1)
+        val end = month.atEndOfMonth()
+        return combine(
+            operationDao.getCategories(),
+            operationDao.getCategoryTotals(start = start, end = end),
+            operationDao.getUncategorizedExpensesTotal(start = start, end = end),
+        ) { categories, totals, uncategorizedTotal ->
+            val totalByCategoryId = totals.associate { it.categoryId to it.total }
+            val categoryExpenses =
+                categories
+                    .map { it.toCategory() }
+                    .filter { it.type == CategoryType.Expense }
+                    .sortedWith(CATEGORY_ORDER)
+                    .mapNotNull { category ->
+                        val amount = -(totalByCategoryId[category.id] ?: 0.0)
+                        if (amount > 0) CategoryExpense(category = category, amount = amount) else null
+                    }
+            val uncategorizedExpense = uncategorizedTotal?.let { CategoryExpense(category = null, amount = -it) }
+            categoryExpenses + listOfNotNull(uncategorizedExpense)
+        }
+    }
+
     // Expenses are negative and refunds positive, so adding the month's operations to the budget gives what is left
     fun getBudgets(month: YearMonth): Flow<List<Budget>> =
         combine(

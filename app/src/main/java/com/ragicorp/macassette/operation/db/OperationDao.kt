@@ -57,6 +57,13 @@ interface OperationDao {
         end: LocalDate,
     ): Flow<List<CategoryTotal>>
 
+    // Null when there is none
+    @Query("SELECT SUM(amount) FROM Operation WHERE categoryId IS NULL AND amount < 0 AND date BETWEEN :start AND :end")
+    fun getUncategorizedExpensesTotal(
+        start: LocalDate,
+        end: LocalDate,
+    ): Flow<Double?>
+
     @Insert
     suspend fun insertOperation(operation: OperationEntity)
 

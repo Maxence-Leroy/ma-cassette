@@ -23,8 +23,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.budget.views.BudgetCard
-import com.ragicorp.macassette.screens.budget.views.MonthSelector
 import com.ragicorp.macassette.screens.budget.views.UniformGrid
+import com.ragicorp.macassette.ui.views.MonthSelector
 import org.threeten.bp.YearMonth
 
 private const val GRID_SPAN_COUNT = 2

@@ -2,6 +2,7 @@ package com.ragicorp.macassette.operation
 
 import android.content.Context
 import com.ragicorp.macassette.operation.db.CategoryEntity
+import com.ragicorp.macassette.operation.db.CategoryTotal
 import com.ragicorp.macassette.operation.db.OperationDao
 import com.ragicorp.macassette.operation.db.OperationDatabase
 import com.ragicorp.macassette.operation.db.OperationEntity
@@ -25,6 +26,7 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
 import org.threeten.bp.LocalDate
+import org.threeten.bp.YearMonth
 
 class OperationRepositoryTest {
     private val operationDao = mockk<OperationDao>()
@@ -246,6 +248,57 @@ class OperationRepositoryTest {
             val sortedNames = repository.getCategories().first().map { it.name }
 
             assertEquals(listOf("Health", "Groceries", "Books", "Leisure", "Salary"), sortedNames)
+        }
+
+    @Test
+    fun `expenses are the spending of each expense category over the month, sorted like categories`() =
+        runTest {
+            val month = YearMonth.of(2026, 10)
+            val groceries = groceries.copy(color = groceriesColor)
+            val health = Category(id = 5, name = "Health", color = 0xFFE53935.toInt(), type = CategoryType.Expense)
+            val salary = Category(id = 6, name = "Salary", color = 0xFF1E88E5.toInt(), type = CategoryType.Earning)
+            val unused = Category(id = 7, name = "Unused", color = 0xFF5E35B1.toInt(), type = CategoryType.Expense)
+            val refunded = Category(id = 8, name = "Refunded", color = 0xFF00897B.toInt(), type = CategoryType.Expense)
+            every { operationDao.getCategories() } returns
+                flowOf(listOf(groceries, salary, unused, refunded, health).map { it.toEntity() })
+            every { operationDao.getCategoryTotals(start = month.atDay(1), end = month.atEndOfMonth()) } returns
+                flowOf(
+                    listOf(
+                        CategoryTotal(categoryId = groceries.id, total = -120.5),
+                        CategoryTotal(categoryId = salary.id, total = 2000.0),
+                        CategoryTotal(categoryId = refunded.id, total = 15.0),
+                        CategoryTotal(categoryId = health.id, total = -30.0),
+                    ),
+                )
+
+            every { operationDao.getUncategorizedExpensesTotal(start = month.atDay(1), end = month.atEndOfMonth()) } returns
+                flowOf(null)
+
+            val expenses = repository.getExpenses(month).first()
+
+            assertEquals(
+                listOf(CategoryExpense(category = health, amount = 30.0), CategoryExpense(category = groceries, amount = 120.5)),
+                expenses,
+            )
+        }
+
+    @Test
+    fun `uncategorized expenses come after the categories`() =
+        runTest {
+            val month = YearMonth.of(2026, 10)
+            val groceries = groceries.copy(color = groceriesColor)
+            every { operationDao.getCategories() } returns flowOf(listOf(groceries.toEntity()))
+            every { operationDao.getCategoryTotals(start = any(), end = any()) } returns
+                flowOf(listOf(CategoryTotal(categoryId = groceries.id, total = -40.0)))
+            every { operationDao.getUncategorizedExpensesTotal(start = month.atDay(1), end = month.atEndOfMonth()) } returns
+                flowOf(-25.0)
+
+            val expenses = repository.getExpenses(month).first()
+
+            assertEquals(
+                listOf(CategoryExpense(category = groceries, amount = 40.0), CategoryExpense(category = null, amount = 25.0)),
+                expenses,
+            )
         }
 
     private fun savedOperations(vararg operations: Operation) {
