@@ -10,7 +10,7 @@ something is missing (e.g. there are no tests), that's noted explicitly rather t
 
 - Single module: `:app`. `namespace` / `applicationId` = `com.ragicorp.macassette`.
 - `compileSdk = release(37)`, `minSdk = 24`, `targetSdk = 37`.
-  Java target 11. Kotlin `2.4.21`, AGP `9.4.1`, Gradle `9.8.2`.
+  Java target 11. Kotlin `2.4.21`, AGP `9.5.0`, Gradle `9.8.2`.
 - AGP 9's built-in Kotlin support is used — there is no separate `org.jetbrains.kotlin.android`
   plugin applied (removed from both `build.gradle.kts` and `app/build.gradle.kts`);
   `org.jetbrains.kotlin.plugin.compose` and `org.jetbrains.kotlin.plugin.serialization` are still
