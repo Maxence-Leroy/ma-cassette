@@ -36,8 +36,9 @@ class OperationRepository(
 
     suspend fun insertOperation(operation: Operation) = operationDao.insertOperation(operation.toEntity())
 
-    // Saves the operations of a statement that weren't already imported, and returns how many were saved
-    suspend fun importOperations(operations: List<Operation>): Int {
+    // Saves the operations of a statement that weren't already imported, categorized by the sorting rules matching their
+    // label. Those matched by rules applying different categories are returned unsaved instead, for the category to be picked.
+    suspend fun importOperations(operations: List<Operation>): ImportResult {
         val unmatchedSavedOperations =
             operationDao
                 .getOperations(
@@ -54,21 +55,30 @@ class OperationRepository(
                     ?.let { unmatchedSavedOperations.remove(it) } == true
             }
         val sortingRules = operationDao.fetchSortingRules().map { it.toSortingRule() }
-        operationDao.insertOperations(newOperations.map { it.copy(category = findCategory(it.label, sortingRules)).toEntity() })
-        return newOperations.size
+        val (ambiguousOperations, sortedOperations) =
+            newOperations
+                .map { it to findCategories(it.label, sortingRules) }
+                .partition { (_, categories) -> categories.size > 1 }
+        operationDao.insertOperations(
+            sortedOperations.map { (operation, categories) -> operation.copy(category = categories.singleOrNull()).toEntity() },
+        )
+        return ImportResult(
+            importedCount = sortedOperations.size,
+            ambiguousOperations = ambiguousOperations.map { (operation, categories) -> AmbiguousOperation(operation, categories) },
+        )
     }
 
-    // The category of the rules whose text is in the label, ignoring case. Left unknown when no rule matches, or when
-    // matching rules apply different categories.
-    private fun findCategory(
+    suspend fun insertOperations(operations: List<Operation>) = operationDao.insertOperations(operations.map { it.toEntity() })
+
+    // The categories of the rules whose text is in the label, ignoring case
+    private fun findCategories(
         label: String,
         sortingRules: List<SortingRule>,
-    ): Category? =
+    ): List<Category> =
         sortingRules
             .filter { label.lowercase().contains(it.textToRecognize.lowercase()) }
             .map { it.categoryToApply }
             .distinctBy { it.id }
-            .singleOrNull()
 
     suspend fun updateOperation(operation: Operation) = operationDao.updateOperation(operation.toEntity())
 

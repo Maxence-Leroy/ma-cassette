@@ -63,6 +63,17 @@
         <item quantity="many">%d opérations importées</item>
         <item quantity="other">%d opérations importées</item>
     </plurals>
+    <string name="importOperations_ambiguousTitle">Opérations à trier</string>
+    <string name="importOperations_ambiguousMessage">Plusieurs règles de tri correspondent à ces opérations. Choisissez leur catégorie, celles laissées vides seront enregistrées sans catégorie.</string>
+    <string name="importOperations_category">Catégorie</string>
+    <string name="importOperations_save">Enregistrer</string>
+    <string name="importOperations_leaveTitle">Quitter sans enregistrer ?</string>
+    <plurals name="importOperations_leaveMessage">
+        <item quantity="one">%d opération à trier ne sera pas importée.</item>
+        <item quantity="many">%d opérations à trier ne seront pas importées.</item>
+        <item quantity="other">%d opérations à trier ne seront pas importées.</item>
+    </plurals>
+    <string name="importOperations_leaveConfirm">Quitter</string>
     <string name="importOperations_parser">Profil bancaire</string>
     <string name="importOperations_noParser">Aucun profil bancaire disponible, veuillez en créer un nouveau</string>
     <string name="createParser_title">Créer un profil bancaire</string>

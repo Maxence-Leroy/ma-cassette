@@ -11,6 +11,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.operation.AmbiguousOperation
+import com.ragicorp.macassette.operation.Category
 import com.ragicorp.macassette.operation.Operation
 import com.ragicorp.macassette.operation.OperationRepository
 import com.ragicorp.macassette.operation.OperationState
@@ -43,6 +45,8 @@ class ImportOperationsViewModel(
 ) : AndroidViewModel(application) {
     private val operationRepository = OperationRepository(application)
 
+    val currency = Preferences.getCurrency(application)
+
     // Null when the URL saved in the settings isn't a web URL a browser can open
     val statementUrl: String? =
         Preferences.getStatementUrl(application).takeIf {
@@ -66,6 +70,10 @@ class ImportOperationsViewModel(
 
     private val _isImporting = mutableStateOf(false)
     val isImporting: State<Boolean> = _isImporting
+
+    // Imported operations that several rules could categorize, not saved until their category is picked
+    private val _ambiguousOperations = mutableStateOf(emptyList<AmbiguousOperation>())
+    val ambiguousOperations: State<List<AmbiguousOperation>> = _ambiguousOperations
 
     // Parsers matching the selected file's columns, null until they are known
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -106,18 +114,52 @@ class ImportOperationsViewModel(
         // A second import running before the first one is saved would see none of its operations and save them twice
         if (_isImporting.value) return
         _isImporting.value = true
-        val context = getApplication<Application>()
         viewModelScope.launch {
             try {
                 val operations = withContext(Dispatchers.IO) { readOperations(uri, parser) }
-                val importedCount = operationRepository.importOperations(operations)
-                val message = context.resources.getQuantityString(R.plurals.importOperations_importedCount, importedCount, importedCount)
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                onImported()
+                val result = operationRepository.importOperations(operations)
+                showImportedCount(result.importedCount)
+                if (result.ambiguousOperations.isEmpty()) {
+                    onImported()
+                } else {
+                    _ambiguousOperations.value = result.ambiguousOperations
+                }
             } finally {
                 _isImporting.value = false
             }
         }
+    }
+
+    fun setAmbiguousOperationCategory(
+        index: Int,
+        category: Category,
+    ) {
+        _ambiguousOperations.value =
+            _ambiguousOperations.value.toMutableList().also {
+                it[index] = it[index].copy(operation = it[index].operation.copy(category = category))
+            }
+    }
+
+    // Operations whose category wasn't picked are saved without one
+    fun saveAmbiguousOperations(onSaved: () -> Unit) {
+        if (_isImporting.value) return
+        _isImporting.value = true
+        val operations = _ambiguousOperations.value.map { it.operation }
+        viewModelScope.launch {
+            try {
+                operationRepository.insertOperations(operations)
+                showImportedCount(operations.size)
+                onSaved()
+            } finally {
+                _isImporting.value = false
+            }
+        }
+    }
+
+    private fun showImportedCount(count: Int) {
+        val context = getApplication<Application>()
+        val message = context.resources.getQuantityString(R.plurals.importOperations_importedCount, count, count)
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
 
     // Lines whose date or amount can't be read (e.g. a footer with totals) are skipped
