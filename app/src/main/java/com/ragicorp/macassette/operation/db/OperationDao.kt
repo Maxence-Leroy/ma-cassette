@@ -57,6 +57,20 @@ interface OperationDao {
         end: LocalDate,
     ): Flow<List<CategoryTotal>>
 
+    // Per month from start, oldest first, with "yyyy-MM" months (dates are stored as epoch days). Expenses are those of
+    // expense categories (refunds deducted) and the uncategorized negative amounts, earnings those of earning categories
+    // and the uncategorized positive amounts. Internal categories are transfers, so they count in neither.
+    @Query(
+        "SELECT strftime('%Y-%m', Operation.date * 86400, 'unixepoch') AS month, " +
+            "TOTAL(CASE WHEN Category.type = 'Expense' OR (Category.id IS NULL AND Operation.amount < 0) " +
+            "THEN Operation.amount ELSE 0 END) AS expenses, " +
+            "TOTAL(CASE WHEN Category.type = 'Earning' OR (Category.id IS NULL AND Operation.amount > 0) " +
+            "THEN Operation.amount ELSE 0 END) AS earnings " +
+            "FROM Operation LEFT JOIN Category ON Operation.categoryId = Category.id " +
+            "WHERE Operation.date >= :start GROUP BY month ORDER BY month",
+    )
+    fun getMonthTotals(start: LocalDate): Flow<List<MonthTotal>>
+
     // Null when there is none
     @Query("SELECT SUM(amount) FROM Operation WHERE categoryId IS NULL AND amount < 0 AND date BETWEEN :start AND :end")
     fun getUncategorizedExpensesTotal(

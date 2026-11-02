@@ -26,6 +26,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.rememberViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ragicorp.macassette.R
+import com.ragicorp.macassette.screens.balance.BalanceScreen
 import com.ragicorp.macassette.screens.budget.BudgetScreen
 import com.ragicorp.macassette.screens.distribution.DistributionScreen
 import com.ragicorp.macassette.screens.home.operationform.OperationFormBottomSheet
@@ -48,6 +49,7 @@ enum class HomeSubScreens(
     Operations(R.string.home_operationsTitle, "list_alt"),
     Budget(R.string.home_budgetTitle, "money_bag"),
     Distribution(R.string.home_distributionTitle, "pie_chart"),
+    Balance(R.string.home_balanceTitle, "balance"),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,6 +142,7 @@ fun HomeScreen(
                     modifier = contentModifier,
                 )
             HomeSubScreens.Distribution -> DistributionScreen(modifier = contentModifier)
+            HomeSubScreens.Balance -> BalanceScreen(modifier = contentModifier)
         }
     }
 

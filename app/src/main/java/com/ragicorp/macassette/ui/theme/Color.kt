@@ -23,3 +23,7 @@ val CategoryColors =
         Color(0xFF6D4C41),
         Color(0xFF757575),
     )
+
+// Money going out and coming in
+val ExpensesColor = Color(0xFFE53935)
+val EarningsColor = Color(0xFF43A047)

@@ -3,6 +3,7 @@ package com.ragicorp.macassette.operation
 import android.content.Context
 import com.ragicorp.macassette.operation.db.CategoryEntity
 import com.ragicorp.macassette.operation.db.CategoryTotal
+import com.ragicorp.macassette.operation.db.MonthTotal
 import com.ragicorp.macassette.operation.db.OperationDao
 import com.ragicorp.macassette.operation.db.OperationDatabase
 import com.ragicorp.macassette.operation.db.OperationEntity
@@ -299,6 +300,30 @@ class OperationRepositoryTest {
                 listOf(CategoryExpense(category = groceries, amount = 40.0), CategoryExpense(category = null, amount = 25.0)),
                 expenses,
             )
+        }
+
+    @Test
+    fun `month balances cover the last months, the current one included`() =
+        runTest {
+            every { operationDao.getMonthTotals(start = any()) } returns
+                flowOf(
+                    listOf(
+                        MonthTotal(month = "2026-09", expenses = -800.0, earnings = 2000.0),
+                        MonthTotal(month = "2026-10", expenses = -1200.5, earnings = 1000.0),
+                    ),
+                )
+
+            val balances = repository.getMonthBalances(12).first()
+
+            coVerify { operationDao.getMonthTotals(start = YearMonth.now().minusMonths(11).atDay(1)) }
+            assertEquals(
+                listOf(
+                    MonthBalance(month = YearMonth.of(2026, 9), expenses = -800.0, earnings = 2000.0),
+                    MonthBalance(month = YearMonth.of(2026, 10), expenses = -1200.5, earnings = 1000.0),
+                ),
+                balances,
+            )
+            assertEquals(listOf(1200.0, -200.5), balances.map { it.balance })
         }
 
     private fun savedOperations(vararg operations: Operation) {

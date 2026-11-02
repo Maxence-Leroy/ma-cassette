@@ -131,6 +131,12 @@ class OperationRepository(
         }
     }
 
+    // The months with operations among the last ones (the current one included), oldest first
+    fun getMonthBalances(monthCount: Int): Flow<List<MonthBalance>> =
+        operationDao.getMonthTotals(start = YearMonth.now().minusMonths(monthCount - 1L).atDay(1)).map { totals ->
+            totals.map { MonthBalance(month = YearMonth.parse(it.month), expenses = it.expenses, earnings = it.earnings) }
+        }
+
     // Expenses are negative and refunds positive, so adding the month's operations to the budget gives what is left
     fun getBudgets(month: YearMonth): Flow<List<Budget>> =
         combine(

@@ -3,6 +3,7 @@
     <string name="home_operationsTitle">Opérations</string>
     <string name="home_budgetTitle">Enveloppes</string>
     <string name="home_distributionTitle">Répartition</string>
+    <string name="home_balanceTitle">Équilibre</string>
     <string name="home_addOperation">Ajouter une opération</string>
     <plurals name="home_selectedOperations">
         <item quantity="one">%d sélectionnée</item>
@@ -15,6 +16,11 @@
     <string name="budget_monthlyAmount">%1$s\u202F%2$s par mois</string>
     <string name="distribution_empty">Aucune dépense ce mois-ci</string>
     <string name="distribution_noCategory">Sans catégorie</string>
+    <string name="balance_empty">Aucune opération sur les 12 derniers mois</string>
+    <string name="balance_expenses">Dépenses</string>
+    <string name="balance_earnings">Revenus</string>
+    <string name="balance_balance">Solde</string>
+    <string name="balance_amount">%1$s\u202F%2$s</string>
     <string name="distribution_amount">%1$s\u202F%2$s</string>
     <string name="operationForm_date">Date</string>
     <string name="operationForm_category">Catégorie</string>

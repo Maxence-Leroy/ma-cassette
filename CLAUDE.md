@@ -125,8 +125,8 @@ something is missing (e.g. there is no CI), that's noted explicitly rather than 
 - Only local JVM unit tests under `app/src/test/` (JUnit 4, `kotlinx-coroutines-test`, mockk) — no
   instrumented tests under `app/src/androidTest/`. Run them with `./gradlew testDebugUnitTest`.
 - Covered so far: `OperationRepository.importOperations`, `insertCategory`, `updateCategory`,
-  `getExpenses` and the `getCategories` order (`OperationRepositoryTest`), and the pure color helper in
-  `utils/ColorShade.kt` (`ColorShadeTest`).
+  `getExpenses`, `getMonthBalances` and the `getCategories` order (`OperationRepositoryTest`), and the pure helpers in `utils/`
+  (`ColorShadeTest`, `AxisScaleTest`).
 - Repositories are tested against a mockk-mocked DAO. Since a repository gets its DAO from the
   database singleton, the test mocks the companion with `mockkObject(OperationDatabase)` so
   `getInstance(any())` returns a mocked database, and calls `unmockkAll()` in `@After`.
