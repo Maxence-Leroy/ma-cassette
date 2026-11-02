@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
@@ -114,6 +115,8 @@ fun OperationsScreen(
 
     // The filters slide away while scrolling down and come back as soon as scrolling up, like a collapsing app bar.
     // The scroll moving them is consumed, so the list follows the finger instead of scrolling under them at the same time.
+    // Hiding them makes the list taller by as much, so they only hide as far as the list can still scroll: past its end,
+    // the list would scroll its content back down to fill the gap, against the finger.
     var filtersHeight by remember { mutableIntStateOf(0) }
     var filtersOffset by remember { mutableFloatStateOf(0f) }
     val filtersScrollConnection =
@@ -123,17 +126,17 @@ fun OperationsScreen(
                     available: Offset,
                     source: NestedScrollSource,
                 ): Offset {
-                    val newOffset = (filtersOffset + available.y).coerceIn(-filtersHeight.toFloat(), 0f)
+                    val minOffset = maxOf(-filtersHeight.toFloat(), filtersOffset - listState.remainingForwardScroll())
+                    val newOffset = (filtersOffset + available.y).coerceIn(minOffset, 0f)
                     val consumed = newOffset - filtersOffset
                     filtersOffset = newOffset
                     return Offset(0f, consumed)
                 }
             }
         }
-    // A list that can't scroll couldn't bring the filters back, so show them again
-    LaunchedEffect(listState) {
-        snapshotFlow { operations.isEmpty() || !(listState.canScrollForward || listState.canScrollBackward) }
-            .collect { if (it) filtersOffset = 0f }
+    // Without a list to drag, the filters couldn't be brought back, so show them again
+    LaunchedEffect(operations.isEmpty()) {
+        if (operations.isEmpty()) filtersOffset = 0f
     }
 
     Column(modifier = modifier.fillMaxSize().nestedScroll(filtersScrollConnection)) {
@@ -311,6 +314,17 @@ private sealed class RuleSuggestion {
         val textToRecognize: String,
         val categoryToApplyId: Long,
     ) : RuleSuggestion()
+}
+
+// How far the list can still scroll down. Items that aren't laid out yet are estimated from the visible ones' average size.
+private fun LazyListState.remainingForwardScroll(): Float {
+    val layoutInfo = layoutInfo
+    val visibleItems = layoutInfo.visibleItemsInfo
+    val lastItem = visibleItems.maxByOrNull { it.index } ?: return 0f
+    val unseenItemsSize = (layoutInfo.totalItemsCount - 1 - lastItem.index) * visibleItems.sumOf { it.size } / visibleItems.size
+    return (lastItem.offset + lastItem.size + unseenItemsSize + layoutInfo.afterContentPadding - layoutInfo.viewportEndOffset)
+        .coerceAtLeast(0)
+        .toFloat()
 }
 
 // Pulls the card up by its border width so touching cards share a single border line instead of doubling it
