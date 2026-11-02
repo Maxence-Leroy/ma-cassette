@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Badge
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -20,8 +21,10 @@ import dev.vicart.compose.material.symbols.MaterialSymbol
 @Composable
 fun QuickFilters(
     isUncategorizedOnly: Boolean,
+    uncategorizedCount: Int,
     onUncategorizedOnlyToggle: () -> Unit,
     isWaitingForActionOnly: Boolean,
+    waitingForActionCount: Int,
     onWaitingForActionOnlyToggle: () -> Unit,
     hasFilters: Boolean,
     onClearFilters: () -> Unit,
@@ -41,12 +44,14 @@ fun QuickFilters(
                 onClick = onUncategorizedOnlyToggle,
                 label = { Text(stringResource(R.string.operations_noCategory)) },
                 leadingIcon = if (isUncategorizedOnly) ({ MaterialSymbol.Filled("check") }) else null,
+                trailingIcon = countBadge(uncategorizedCount),
             )
             FilterChip(
                 selected = isWaitingForActionOnly,
                 onClick = onWaitingForActionOnlyToggle,
                 label = { Text(stringResource(R.string.operations_waitingForAction)) },
                 leadingIcon = if (isWaitingForActionOnly) ({ MaterialSymbol.Filled("check") }) else null,
+                trailingIcon = countBadge(waitingForActionCount),
             )
         }
         TextButton(onClick = onClearFilters, enabled = hasFilters) {
@@ -54,3 +59,11 @@ fun QuickFilters(
         }
     }
 }
+
+// No badge at all rather than a 0 once everything is sorted
+private fun countBadge(count: Int): (@Composable () -> Unit)? =
+    if (count > 0) {
+        { Badge { Text(count.toString()) } }
+    } else {
+        null
+    }

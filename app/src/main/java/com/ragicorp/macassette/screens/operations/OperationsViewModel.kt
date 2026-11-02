@@ -39,6 +39,17 @@ class OperationsViewModel(
             .getFirstOperationDate()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    // Counted over every operation, whatever the filters, so they show what is left to sort
+    val uncategorizedCount: StateFlow<Int> =
+        operationRepository
+            .getUncategorizedCount()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+
+    val waitingForActionCount: StateFlow<Int> =
+        operationRepository
+            .getWaitingForActionCount()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0)
+
     // No category selected shows all of them
     private val _selectedCategoryIds = mutableStateOf(emptySet<Long>())
     val selectedCategoryIds: State<Set<Long>> = _selectedCategoryIds

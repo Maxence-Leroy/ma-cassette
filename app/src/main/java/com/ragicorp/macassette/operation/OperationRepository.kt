@@ -25,6 +25,10 @@ class OperationRepository(
                 isWaitingForActionOnly = filter.isWaitingForActionOnly,
             ).map { operations -> operations.map { it.toOperation() } }
 
+    fun getUncategorizedCount(): Flow<Int> = operationDao.getUncategorizedCount()
+
+    fun getWaitingForActionCount(): Flow<Int> = operationDao.getWaitingForActionCount()
+
     fun getFirstOperationDate(): Flow<LocalDate?> = operationDao.getFirstOperationDate()
 
     // Month of the first recorded operation, null while there is none

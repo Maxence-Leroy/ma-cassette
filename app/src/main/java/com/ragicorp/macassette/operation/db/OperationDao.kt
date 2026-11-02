@@ -39,6 +39,12 @@ interface OperationDao {
         states: List<OperationState>,
     ): List<OperationWithCategory>
 
+    @Query("SELECT COUNT(*) FROM Operation WHERE categoryId IS NULL")
+    fun getUncategorizedCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM Operation WHERE isWaitingForAction = 1")
+    fun getWaitingForActionCount(): Flow<Int>
+
     @Query("SELECT MIN(date) FROM Operation")
     fun getFirstOperationDate(): Flow<LocalDate?>
 

@@ -73,6 +73,8 @@ fun OperationsScreen(
     val operations by viewModel.operations.collectAsStateWithLifecycle()
     val categories by viewModel.categories.collectAsStateWithLifecycle()
     val firstOperationDate by viewModel.firstOperationDate.collectAsStateWithLifecycle()
+    val uncategorizedCount by viewModel.uncategorizedCount.collectAsStateWithLifecycle()
+    val waitingForActionCount by viewModel.waitingForActionCount.collectAsStateWithLifecycle()
     val selectedCategoryIds by viewModel.selectedCategoryIds
     val startDate by viewModel.startDate
     val endDate by viewModel.endDate
@@ -181,8 +183,10 @@ fun OperationsScreen(
             }
             QuickFilters(
                 isUncategorizedOnly = isUncategorizedOnly,
+                uncategorizedCount = uncategorizedCount,
                 onUncategorizedOnlyToggle = viewModel::toggleUncategorizedOnly,
                 isWaitingForActionOnly = isWaitingForActionOnly,
+                waitingForActionCount = waitingForActionCount,
                 onWaitingForActionOnlyToggle = viewModel::toggleWaitingForActionOnly,
                 hasFilters = hasFilters,
                 onClearFilters = viewModel::clearFilters,
