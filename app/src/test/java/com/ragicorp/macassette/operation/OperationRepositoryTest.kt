@@ -1,12 +1,14 @@
 package com.ragicorp.macassette.operation
 
 import android.content.Context
+import com.ragicorp.macassette.operation.db.CategoryEntity
 import com.ragicorp.macassette.operation.db.OperationDao
 import com.ragicorp.macassette.operation.db.OperationDatabase
 import com.ragicorp.macassette.operation.db.OperationEntity
 import com.ragicorp.macassette.operation.db.OperationWithCategory
 import com.ragicorp.macassette.operation.db.SortingRuleWithCategory
 import com.ragicorp.macassette.operation.db.toEntity
+import com.ragicorp.macassette.utils.toUnusedShade
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -14,9 +16,12 @@ import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.slot
 import io.mockk.unmockkAll
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
 import org.threeten.bp.LocalDate
@@ -28,6 +33,8 @@ class OperationRepositoryTest {
 
     private val groceries = Category(id = 1, name = "Groceries", color = 0, type = CategoryType.Expense)
     private val restaurants = Category(id = 2, name = "Restaurants", color = 0, type = CategoryType.Expense)
+    private val groceriesColor = 0xFF43A047.toInt()
+    private val restaurantsColor = 0xFFFB8C00.toInt()
     private val firstDay = LocalDate.of(2026, 10, 1)
     private val secondDay = LocalDate.of(2026, 10, 2)
 
@@ -169,6 +176,76 @@ class OperationRepositoryTest {
 
             assertEquals(emptyList<OperationEntity>(), insertedOperations.captured)
             assertEquals(ImportResult(importedCount = 0, ambiguousOperations = emptyList()), result)
+        }
+
+    @Test
+    fun `a new category with an unused color keeps it`() =
+        runTest {
+            val insertedCategory = slot<CategoryEntity>()
+            coEvery { operationDao.fetchOtherCategoryColors(0) } returns listOf(restaurantsColor)
+            coEvery { operationDao.insertCategory(capture(insertedCategory)) } returns Unit
+
+            repository.insertCategory(groceries.copy(id = 0, color = groceriesColor))
+
+            assertEquals(groceriesColor, insertedCategory.captured.color)
+        }
+
+    @Test
+    fun `a new category with a color already given gets another one`() =
+        runTest {
+            val insertedCategory = slot<CategoryEntity>()
+            coEvery { operationDao.fetchOtherCategoryColors(0) } returns listOf(groceriesColor, restaurantsColor)
+            coEvery { operationDao.insertCategory(capture(insertedCategory)) } returns Unit
+
+            repository.insertCategory(groceries.copy(id = 0, color = groceriesColor))
+
+            assertNotEquals(groceriesColor, insertedCategory.captured.color)
+            assertNotEquals(restaurantsColor, insertedCategory.captured.color)
+        }
+
+    @Test
+    fun `an edited category keeps a color no other category has`() =
+        runTest {
+            val updatedCategory = slot<CategoryEntity>()
+            coEvery { operationDao.fetchOtherCategoryColors(groceries.id) } returns listOf(restaurantsColor)
+            coEvery { operationDao.updateCategory(capture(updatedCategory)) } returns Unit
+
+            repository.updateCategory(groceries.copy(color = groceriesColor))
+
+            assertEquals(groceriesColor, updatedCategory.captured.color)
+        }
+
+    @Test
+    fun `an edited category given the color of another one gets another one`() =
+        runTest {
+            val updatedCategory = slot<CategoryEntity>()
+            coEvery { operationDao.fetchOtherCategoryColors(groceries.id) } returns listOf(restaurantsColor)
+            coEvery { operationDao.updateCategory(capture(updatedCategory)) } returns Unit
+
+            repository.updateCategory(groceries.copy(color = restaurantsColor))
+
+            assertEquals(groceries.id, updatedCategory.captured.id)
+            assertNotEquals(restaurantsColor, updatedCategory.captured.color)
+        }
+
+    @Test
+    fun `categories are sorted by type, then hue, then name`() =
+        runTest {
+            val yellow = 0xFFFDD835.toInt()
+            val darkerYellow = yellow.toUnusedShade(setOf(yellow))
+            val categories =
+                listOf(
+                    Category(id = 1, name = "Salary", color = 0xFFE53935.toInt(), type = CategoryType.Earning),
+                    Category(id = 2, name = "Leisure", color = yellow, type = CategoryType.Expense),
+                    Category(id = 3, name = "Groceries", color = restaurantsColor, type = CategoryType.Expense),
+                    Category(id = 4, name = "Books", color = darkerYellow, type = CategoryType.Expense),
+                    Category(id = 5, name = "Health", color = 0xFFE53935.toInt(), type = CategoryType.Expense),
+                )
+            every { operationDao.getCategories() } returns flowOf(categories.map { it.toEntity() })
+
+            val sortedNames = repository.getCategories().first().map { it.name }
+
+            assertEquals(listOf("Health", "Groceries", "Books", "Leisure", "Salary"), sortedNames)
         }
 
     private fun savedOperations(vararg operations: Operation) {

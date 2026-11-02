@@ -3,11 +3,27 @@ package com.ragicorp.macassette.operation
 import android.content.Context
 import com.ragicorp.macassette.operation.db.OperationDatabase
 import com.ragicorp.macassette.operation.db.toEntity
+import com.ragicorp.macassette.utils.toHsv
+import com.ragicorp.macassette.utils.toUnusedShade
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.threeten.bp.LocalDate
 import org.threeten.bp.YearMonth
+import kotlin.math.roundToInt
+
+// By type, then hue so shades of a color stay together, then name. A shade's hue can be a fraction of a degree off its
+// color's, from rounding its RGB channels, hence the rounding.
+private val CATEGORY_ORDER =
+    compareBy<Category>(
+        { it.type.ordinal },
+        {
+            it.color
+                .toHsv()
+                .hue
+                .roundToInt()
+        },
+    ).thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
 
 class OperationRepository(
     context: Context,
@@ -86,7 +102,8 @@ class OperationRepository(
 
     suspend fun deleteOperations(ids: Set<Long>) = operationDao.deleteOperations(ids)
 
-    fun getCategories(): Flow<List<Category>> = operationDao.getCategories().map { categories -> categories.map { it.toCategory() } }
+    fun getCategories(): Flow<List<Category>> =
+        operationDao.getCategories().map { categories -> categories.map { it.toCategory() }.sortedWith(CATEGORY_ORDER) }
 
     // Expenses are negative and refunds positive, so adding the month's operations to the budget gives what is left
     fun getBudgets(month: YearMonth): Flow<List<Budget>> =
@@ -95,17 +112,21 @@ class OperationRepository(
             operationDao.getCategoryTotals(start = month.atDay(1), end = month.atEndOfMonth()),
         ) { categories, totals ->
             val totalByCategoryId = totals.associate { it.categoryId to it.total }
-            categories.map { entity ->
-                val category = entity.toCategory()
+            categories.map { it.toCategory() }.sortedWith(CATEGORY_ORDER).map { category ->
                 Budget(category = category, remaining = (category.budget ?: 0.0) + (totalByCategoryId[category.id] ?: 0.0))
             }
         }
 
     suspend fun getCategory(id: Long): Category? = operationDao.getCategory(id)?.toCategory()
 
-    suspend fun insertCategory(category: Category) = operationDao.insertCategory(category.toEntity())
+    suspend fun insertCategory(category: Category) = operationDao.insertCategory(category.withUnusedColor().toEntity())
 
-    suspend fun updateCategory(category: Category) = operationDao.updateCategory(category.toEntity())
+    suspend fun updateCategory(category: Category) = operationDao.updateCategory(category.withUnusedColor().toEntity())
+
+    // Each category keeps a color of its own: one already given to another category is shifted to a free shade of it.
+    // A new category's id is 0, which no saved category has.
+    private suspend fun Category.withUnusedColor(): Category =
+        copy(color = color.toUnusedShade(operationDao.fetchOtherCategoryColors(id).toSet()))
 
     suspend fun deleteCategory(category: Category) = operationDao.deleteCategory(category.toEntity())
 

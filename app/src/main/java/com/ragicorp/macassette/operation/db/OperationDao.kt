@@ -72,14 +72,16 @@ interface OperationDao {
     @Query("DELETE FROM Operation WHERE id IN (:ids)")
     suspend fun deleteOperations(ids: Set<Long>)
 
-    @Query("SELECT * FROM Category ORDER BY CASE type WHEN 'Expense' THEN 0 WHEN 'Earning' THEN 1 ELSE 2 END, color, name COLLATE NOCASE")
+    // Sorted by OperationRepository, as their order depends on the hue of their color
+    @Query("SELECT * FROM Category")
     fun getCategories(): Flow<List<CategoryEntity>>
 
-    @Query(
-        "SELECT * FROM Category WHERE budget IS NOT NULL " +
-            "ORDER BY CASE type WHEN 'Expense' THEN 0 WHEN 'Earning' THEN 1 ELSE 2 END, color, name COLLATE NOCASE",
-    )
+    // Sorted by OperationRepository, as their order depends on the hue of their color
+    @Query("SELECT * FROM Category WHERE budget IS NOT NULL")
     fun getBudgetCategories(): Flow<List<CategoryEntity>>
+
+    @Query("SELECT color FROM Category WHERE id != :categoryId")
+    suspend fun fetchOtherCategoryColors(categoryId: Long): List<Int>
 
     @Query("SELECT * FROM Category WHERE id = :id")
     suspend fun getCategory(id: Long): CategoryEntity?
