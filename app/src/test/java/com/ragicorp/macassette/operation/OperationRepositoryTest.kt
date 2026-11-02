@@ -1,0 +1,206 @@
+package com.ragicorp.macassette.operation
+
+import android.content.Context
+import com.ragicorp.macassette.operation.db.OperationDao
+import com.ragicorp.macassette.operation.db.OperationDatabase
+import com.ragicorp.macassette.operation.db.OperationEntity
+import com.ragicorp.macassette.operation.db.OperationWithCategory
+import com.ragicorp.macassette.operation.db.SortingRuleWithCategory
+import com.ragicorp.macassette.operation.db.toEntity
+import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.mockkObject
+import io.mockk.slot
+import io.mockk.unmockkAll
+import kotlinx.coroutines.test.runTest
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Test
+import org.threeten.bp.LocalDate
+
+class OperationRepositoryTest {
+    private val operationDao = mockk<OperationDao>()
+    private val insertedOperations = slot<List<OperationEntity>>()
+    private lateinit var repository: OperationRepository
+
+    private val groceries = Category(id = 1, name = "Groceries", color = 0, type = CategoryType.Expense)
+    private val restaurants = Category(id = 2, name = "Restaurants", color = 0, type = CategoryType.Expense)
+    private val firstDay = LocalDate.of(2026, 10, 1)
+    private val secondDay = LocalDate.of(2026, 10, 2)
+
+    @Before
+    fun setUp() {
+        val database = mockk<OperationDatabase>()
+        every { database.operationDao() } returns operationDao
+        // The repository gets its DAO from the database singleton, so the singleton is mocked to hand out the mocked DAO
+        mockkObject(OperationDatabase)
+        every { OperationDatabase.getInstance(any()) } returns database
+
+        coEvery { operationDao.getOperations(dates = any(), states = any()) } returns emptyList()
+        coEvery { operationDao.fetchSortingRules() } returns emptyList()
+        coEvery { operationDao.insertOperations(capture(insertedOperations)) } returns Unit
+
+        repository = OperationRepository(mockk<Context>())
+    }
+
+    @After
+    fun tearDown() {
+        unmockkAll()
+    }
+
+    @Test
+    fun `new operations are all saved`() =
+        runTest {
+            val operations = listOf(operation(label = "Bakery"), operation(label = "Cinema", date = secondDay))
+
+            val result = repository.importOperations(operations)
+
+            assertEquals(operations.map { it.toEntity() }, insertedOperations.captured)
+            assertEquals(ImportResult(importedCount = 2, ambiguousOperations = emptyList()), result)
+        }
+
+    @Test
+    fun `saved operations are looked up on the statement dates among imported and merged ones`() =
+        runTest {
+            repository.importOperations(
+                listOf(operation(label = "Bakery"), operation(label = "Cinema"), operation(label = "Pharmacy", date = secondDay)),
+            )
+
+            coVerify {
+                operationDao.getOperations(
+                    dates = listOf(firstDay, secondDay),
+                    states = listOf(OperationState.AutoImported, OperationState.Merged),
+                )
+            }
+        }
+
+    @Test
+    fun `operations already saved by a previous import are skipped`() =
+        runTest {
+            savedOperations(operation(id = 10, label = "Bakery"))
+
+            val result = repository.importOperations(listOf(operation(label = "Bakery"), operation(label = "Cinema")))
+
+            assertEquals(listOf(operation(label = "Cinema").toEntity()), insertedOperations.captured)
+            assertEquals(1, result.importedCount)
+        }
+
+    @Test
+    fun `an operation is only a duplicate with the same date, label and amount`() =
+        runTest {
+            savedOperations(operation(id = 10, label = "Bakery", amount = -5.0))
+            val operations =
+                listOf(
+                    operation(label = "Bakery", amount = -5.0, date = secondDay),
+                    operation(label = "Cinema", amount = -5.0),
+                    operation(label = "Bakery", amount = -6.0),
+                )
+
+            val result = repository.importOperations(operations)
+
+            assertEquals(operations.map { it.toEntity() }, insertedOperations.captured)
+            assertEquals(3, result.importedCount)
+        }
+
+    @Test
+    fun `each saved operation only accounts for a single identical operation`() =
+        runTest {
+            savedOperations(operation(id = 10, label = "Bakery"))
+
+            val result = repository.importOperations(listOf(operation(label = "Bakery"), operation(label = "Bakery")))
+
+            assertEquals(listOf(operation(label = "Bakery").toEntity()), insertedOperations.captured)
+            assertEquals(1, result.importedCount)
+        }
+
+    @Test
+    fun `operations matched by a sorting rule get its category, ignoring case`() =
+        runTest {
+            sortingRules(rule(text = "carrefour", category = groceries))
+
+            val result = repository.importOperations(listOf(operation(label = "CB CARREFOUR CITY"), operation(label = "Cinema")))
+
+            assertEquals(
+                listOf(operation(label = "CB CARREFOUR CITY", category = groceries).toEntity(), operation(label = "Cinema").toEntity()),
+                insertedOperations.captured,
+            )
+            assertEquals(ImportResult(importedCount = 2, ambiguousOperations = emptyList()), result)
+        }
+
+    @Test
+    fun `operations matched by several rules applying the same category are categorized`() =
+        runTest {
+            sortingRules(rule(id = 1, text = "carrefour", category = groceries), rule(id = 2, text = "city", category = groceries))
+
+            val result = repository.importOperations(listOf(operation(label = "Carrefour City")))
+
+            assertEquals(listOf(operation(label = "Carrefour City", category = groceries).toEntity()), insertedOperations.captured)
+            assertEquals(ImportResult(importedCount = 1, ambiguousOperations = emptyList()), result)
+        }
+
+    @Test
+    fun `operations matched by rules applying different categories are returned unsaved`() =
+        runTest {
+            sortingRules(rule(id = 1, text = "carrefour", category = groceries), rule(id = 2, text = "city", category = restaurants))
+
+            val result = repository.importOperations(listOf(operation(label = "Carrefour City"), operation(label = "Cinema")))
+
+            assertEquals(listOf(operation(label = "Cinema").toEntity()), insertedOperations.captured)
+            assertEquals(
+                ImportResult(
+                    importedCount = 1,
+                    ambiguousOperations =
+                        listOf(AmbiguousOperation(operation(label = "Carrefour City"), listOf(groceries, restaurants))),
+                ),
+                result,
+            )
+        }
+
+    @Test
+    fun `operations already saved are neither saved nor returned as ambiguous`() =
+        runTest {
+            savedOperations(operation(id = 10, label = "Carrefour City"))
+            sortingRules(rule(id = 1, text = "carrefour", category = groceries), rule(id = 2, text = "city", category = restaurants))
+
+            val result = repository.importOperations(listOf(operation(label = "Carrefour City")))
+
+            assertEquals(emptyList<OperationEntity>(), insertedOperations.captured)
+            assertEquals(ImportResult(importedCount = 0, ambiguousOperations = emptyList()), result)
+        }
+
+    private fun savedOperations(vararg operations: Operation) {
+        coEvery { operationDao.getOperations(dates = any(), states = any()) } returns
+            operations.map { OperationWithCategory(entity = it.toEntity(), category = it.category?.toEntity()) }
+    }
+
+    private fun sortingRules(vararg rules: SortingRule) {
+        coEvery { operationDao.fetchSortingRules() } returns
+            rules.map { SortingRuleWithCategory(entity = it.toEntity(), categoryToApply = it.categoryToApply.toEntity()) }
+    }
+
+    private fun operation(
+        id: Long = 0,
+        label: String,
+        amount: Double = -10.0,
+        date: LocalDate = firstDay,
+        category: Category? = null,
+    ) = Operation(
+        id = id,
+        category = category,
+        date = date,
+        amount = amount,
+        label = label,
+        notes = "",
+        isWaitingForAction = false,
+        state = OperationState.AutoImported,
+    )
+
+    private fun rule(
+        id: Long = 0,
+        text: String,
+        category: Category,
+    ) = SortingRule(id = id, textToRecognize = text, categoryToApply = category)
+}

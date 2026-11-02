@@ -5,13 +5,16 @@ composeBom = "2026.09.00"
 composeCharts = "1.0.0"
 composeMaterialSymbols = "1.1.6"
 coreKtx = "1.19.1"
+junit = "4.13.2"
 kotlin = "2.4.21"
 ksp = "2.3.12"
+kotlinxCoroutines = "1.11.0"
 kotlinxSerialization = "1.12.0"
 ktlint = "14.2.0"
 ktlint-compose = "0.6.8"
 lifecycleRuntimeKtx = "2.11.0"
 material3 = "1.5.0-beta02"
+mockk = "1.14.11"
 navigationCompose = "2.10.2"
 room = "2.8.5"
 threetenbp = "1.7.5"
@@ -34,8 +37,11 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 compose-charts = { group = "io.github.ehsannarmani", name = "compose-charts", version.ref = "composeCharts" }
 compose-material-symbols = { group = "dev.vicart", name = "compose-material-symbols", version.ref = "composeMaterialSymbols" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 ktlint-compose = { group = "io.nlopez.compose.rules", name = "ktlint", version.ref = "ktlint-compose" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 threetenbp = { group = "org.threeten", name = "threetenbp", version.ref = "threetenbp" }
 
 [plugins]
