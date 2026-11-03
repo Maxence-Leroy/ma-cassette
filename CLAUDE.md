@@ -126,7 +126,7 @@ something is missing (e.g. there is no CI), that's noted explicitly rather than 
   instrumented tests under `app/src/androidTest/`. Run them with `./gradlew testDebugUnitTest`.
 - Covered so far: `OperationRepository.importOperations`, `insertCategory`, `updateCategory`,
   `getExpenses`, `getMonthBalances` and the `getCategories` order (`OperationRepositoryTest`), and the pure helpers in `utils/`
-  (`ColorShadeTest`, `AxisScaleTest`).
+  (`ColorShadeTest`, `HsvTest`, `AxisScaleTest`).
 - Repositories are tested against a mockk-mocked DAO. Since a repository gets its DAO from the
   database singleton, the test mocks the companion with `mockkObject(OperationDatabase)` so
   `getInstance(any())` returns a mocked database, and calls `unmockkAll()` in `@After`.
