@@ -110,6 +110,8 @@ dependencies {
 
     // Only release builds check for new tester builds, the API alone does nothing in debug
     releaseImplementation(libs.firebase.appdistribution)
+    // The SDK declares fragment 1.1.0, which lint rejects for the activity result API used by MainActivity
+    releaseImplementation(libs.androidx.fragment)
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
