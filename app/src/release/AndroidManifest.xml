@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- These App Distribution activities extend AppCompatActivity but would otherwise get the non-AppCompat app theme and crash -->
+    <application>
+        <activity
+            android:name="com.google.firebase.appdistribution.impl.InstallActivity"
+            android:theme="@style/Theme.MaCassette.AppDistribution" />
+        <activity
+            android:name="com.google.firebase.appdistribution.impl.SignInResultActivity"
+            android:theme="@style/Theme.MaCassette.AppDistribution" />
+    </application>
+
+</manifest>
