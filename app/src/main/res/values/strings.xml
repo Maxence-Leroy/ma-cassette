@@ -115,6 +115,8 @@
     <string name="settings_deleteSortingRuleTitle">Supprimer la règle de tri ?</string>
     <string name="settings_deleteSortingRuleMessage">\"%1$s\" sera supprimée.</string>
     <string name="settings_deleteSortingRuleConfirm">Supprimer</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_versionValue">%1$s (%2$d)</string>
     <plurals name="settings_sortingRuleCount">
         <item quantity="one">%d règle</item>
         <item quantity="many">%d règles</item>

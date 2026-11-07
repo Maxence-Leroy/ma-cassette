@@ -16,12 +16,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ragicorp.macassette.BuildConfig
 import com.ragicorp.macassette.R
 import com.ragicorp.macassette.screens.settings.views.CategoriesSetting
 import com.ragicorp.macassette.screens.settings.views.CurrencySetting
 import com.ragicorp.macassette.screens.settings.views.ParsersSetting
 import com.ragicorp.macassette.screens.settings.views.SortingRulesSetting
 import com.ragicorp.macassette.screens.settings.views.StatementUrlSetting
+import com.ragicorp.macassette.screens.settings.views.VersionSetting
 import dev.vicart.compose.material.symbols.MaterialSymbol
 import kotlinx.serialization.Serializable
 
@@ -85,6 +87,10 @@ fun SettingsScreen(
             ParsersSetting(
                 parsers = parsers,
                 onDeleteParser = viewModel::deleteParser,
+            )
+            VersionSetting(
+                versionName = BuildConfig.VERSION_NAME,
+                versionCode = BuildConfig.VERSION_CODE,
             )
         }
     }
