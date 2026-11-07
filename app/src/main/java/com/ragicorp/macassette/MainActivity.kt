@@ -13,8 +13,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.google.firebase.Firebase
-import com.google.firebase.appdistribution.appDistribution
 import com.ragicorp.macassette.screens.createparser.CreateParser
 import com.ragicorp.macassette.screens.createparser.CreateParserScreen
 import com.ragicorp.macassette.screens.home.Home
@@ -26,6 +24,7 @@ import com.ragicorp.macassette.screens.ruleform.RuleFormScreen
 import com.ragicorp.macassette.screens.settings.Settings
 import com.ragicorp.macassette.screens.settings.SettingsScreen
 import com.ragicorp.macassette.ui.theme.MaCassetteTheme
+import com.ragicorp.macassette.utils.checkForAppUpdate
 
 private const val NOTIFICATION_PERMISSION_ASKED_KEY = "notificationPermissionAsked"
 
@@ -108,11 +107,10 @@ class MainActivity : ComponentActivity() {
             notificationPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS)
             return
         }
-        // Signs the tester in and offers to install a newer release build, if any
-        Firebase.appDistribution.updateIfNewReleaseAvailable()
+        checkForAppUpdate()
     }
 
-    // Debug builds don't declare the permission (only the full App Distribution SDK does), so they're never asked
+    // Only release builds declare the permission (through the full App Distribution SDK), so the others are never asked
     private fun needsNotificationPermission() =
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             packageManager

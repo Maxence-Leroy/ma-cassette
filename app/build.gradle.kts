@@ -63,6 +63,10 @@ android {
                 }
             }
         }
+        // Installs next to the release app, without any Firebase dependency
+        debug {
+            applicationIdSuffix = ".dev"
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -98,7 +102,6 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.compose.charts)
     implementation(libs.compose.material.symbols)
-    implementation(libs.firebase.appdistribution.api)
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.threetenbp)
 
@@ -108,7 +111,7 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
 
-    // Only release builds check for new tester builds, the API alone does nothing in debug
+    // Only release builds check for new tester builds
     releaseImplementation(libs.firebase.appdistribution)
     // The SDK declares fragment 1.1.0, which lint rejects for the activity result API used by MainActivity
     releaseImplementation(libs.androidx.fragment)
@@ -117,4 +120,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     ktlintRuleset(libs.ktlint.compose)
+}
+
+// google-services.json has no client for the debug application ID, and the debug build doesn't use Firebase
+tasks.configureEach {
+    if (name == "processDebugGoogleServices") {
+        enabled = false
+    }
 }

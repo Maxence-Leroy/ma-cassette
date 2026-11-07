@@ -21,9 +21,13 @@ something is missing (e.g. there is no CI), that's noted explicitly rather than 
   builds upload with `./gradlew assembleRelease appDistributionUploadRelease`, authenticated by
   `config/firebase-app-distribution.json` (service account key, gitignored) when present, otherwise
   by the Firebase CLI login. The full App Distribution SDK (`releaseImplementation`) checks for new
-  builds in `MainActivity.onResume`; debug builds only get its no-op API.
+  builds in `MainActivity.onResume`; debug builds get nothing.
 - No product flavors. `release` build type uses a signing config loaded from
   `config/signing.properties` (gitignored) pointing at `app/wtc_key.jks`.
+- The `debug` build type (`applicationIdSuffix = ".dev"`, app name overridden in `src/debug/res/`)
+  installs next to the release app and has **no Firebase dependency**: its
+  `processDebugGoogleServices` task is disabled (`google-services.json` has no `.dev` client) and
+  its `checkForAppUpdate()` is a no-op in `src/debug/`, while the real one is in `src/release/`.
 - **All dependencies and plugins go through the version catalog** (`gradle/libs.versions.toml`) —
   `app/build.gradle.kts` never declares inline coordinates or versions. Add new deps to the catalog
   first, then reference via `libs.*` / `libs.plugins.*`.
