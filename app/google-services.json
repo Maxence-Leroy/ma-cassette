@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "530947244069",
+    "project_id": "ma-cassette",
+    "storage_bucket": "ma-cassette.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:530947244069:android:ca65bdf2f6e2fd486b7fcc",
+        "android_client_info": {
+          "package_name": "com.ragicorp.macassette"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCh24ZTxg-Zig2NgTDFLY0MPhi-XmU8-Uk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

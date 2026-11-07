@@ -5,6 +5,9 @@ composeBom = "2026.09.00"
 composeCharts = "1.0.0"
 composeMaterialSymbols = "1.1.6"
 coreKtx = "1.19.1"
+firebaseAppDistribution = "16.0.0-beta21"
+firebaseAppDistributionPlugin = "5.3.1"
+googleServices = "4.5.0"
 junit = "4.13.2"
 kotlin = "2.4.21"
 ksp = "2.3.13"
@@ -37,6 +40,8 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 compose-charts = { group = "io.github.ehsannarmani", name = "compose-charts", version.ref = "composeCharts" }
 compose-material-symbols = { group = "dev.vicart", name = "compose-material-symbols", version.ref = "composeMaterialSymbols" }
+firebase-appdistribution = { group = "com.google.firebase", name = "firebase-appdistribution", version.ref = "firebaseAppDistribution" }
+firebase-appdistribution-api = { group = "com.google.firebase", name = "firebase-appdistribution-api", version.ref = "firebaseAppDistribution" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ktlint-compose = { group = "io.nlopez.compose.rules", name = "ktlint", version.ref = "ktlint-compose" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
@@ -46,6 +51,8 @@ threetenbp = { group = "org.threeten", name = "threetenbp", version.ref = "three
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+firebase-appdistribution = { id = "com.google.firebase.appdistribution", version.ref = "firebaseAppDistributionPlugin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

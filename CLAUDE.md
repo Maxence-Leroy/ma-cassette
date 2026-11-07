@@ -14,8 +14,14 @@ something is missing (e.g. there is no CI), that's noted explicitly rather than 
 - AGP 9's built-in Kotlin support is used — there is no separate `org.jetbrains.kotlin.android`
   plugin applied (removed from both `build.gradle.kts` and `app/build.gradle.kts`);
   `org.jetbrains.kotlin.plugin.compose` and `org.jetbrains.kotlin.plugin.serialization` are still
-  applied explicitly since built-in Kotlin doesn't cover those. Other plugins: KSP (for Room) and
-  `org.jlleitschuh.gradle.ktlint`.
+  applied explicitly since built-in Kotlin doesn't cover those. Other plugins: KSP (for Room),
+  `org.jlleitschuh.gradle.ktlint`, `com.google.gms.google-services` (reads the committed
+  `app/google-services.json`) and `com.google.firebase.appdistribution`.
+- The app is distributed through **Firebase App Distribution only, never the Play Store**. Release
+  builds upload with `./gradlew assembleRelease appDistributionUploadRelease`, authenticated by
+  `config/firebase-app-distribution.json` (service account key, gitignored) when present, otherwise
+  by the Firebase CLI login. The full App Distribution SDK (`releaseImplementation`) checks for new
+  builds in `MainActivity.onResume`; debug builds only get its no-op API.
 - No product flavors. `release` build type uses a signing config loaded from
   `config/signing.properties` (gitignored) pointing at `app/wtc_key.jks`.
 - **All dependencies and plugins go through the version catalog** (`gradle/libs.versions.toml`) —

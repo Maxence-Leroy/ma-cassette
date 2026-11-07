@@ -1,8 +1,11 @@
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 import java.io.FileInputStream
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.firebase.appdistribution)
+    alias(libs.plugins.google.services)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
@@ -51,6 +54,14 @@ android {
                 enable = true
                 packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
             }
+            firebaseAppDistribution {
+                artifactType = "APK"
+                // Without this file, uploads use the account logged in with the Firebase CLI
+                val credentials = File("$rootDir/config/firebase-app-distribution.json")
+                if (credentials.exists()) {
+                    serviceCredentialsFile = credentials.path
+                }
+            }
         }
     }
     compileOptions {
@@ -87,6 +98,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.compose.charts)
     implementation(libs.compose.material.symbols)
+    implementation(libs.firebase.appdistribution.api)
     implementation(libs.kotlinx.serialization.core)
     implementation(libs.threetenbp)
 
@@ -95,6 +107,9 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
+
+    // Only release builds check for new tester builds, the API alone does nothing in debug
+    releaseImplementation(libs.firebase.appdistribution)
 
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
